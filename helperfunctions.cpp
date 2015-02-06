@@ -2,12 +2,12 @@
 
 namespace raintrace
 {
-	Scene buildSphereScene()
+	scene build_sphere_scene()
 	{
-		auto primitives = Scene::PrimitiveVector{};
+		auto primitives = scene::primitive_vector{};
 	}
 	
-	void save_scene(ImageData img_data, string filename){
+	void save_scene(image_data img_data, string filename){
 	  
 	  
 	  

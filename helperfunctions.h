@@ -5,10 +5,10 @@
 #include <boost/gil/extension/io/jpeg_io.hpp>
 
 
-#include "classes/Scene.h"
-#include "classes/Sphere.h"
-#include "classes/Plane.h"
-#include "classes/imageData.h"
+#include "classes/scene.h"
+#include "classes/sphere.h"
+#include "classes/plane.h"
+#include "classes/image_data.h"
 
 
 namespace raintrace
@@ -16,7 +16,7 @@ namespace raintrace
 	/*
 	 * Builds a scene with a sphere resting on a plane surface.
 	 */
-	Scene buildSphereScene();
+	scene build_sphere_scene();
 	
 	/*
 	 * Save the scene as a JPEG image.

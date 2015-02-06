@@ -1,28 +1,28 @@
 #include <string>
 
-#include "classes/ImageData.h"
-#include "classes/Scene.h"
+#include "classes/image_data.h"
+#include "classes/scene.h"
 #include "helperfunctions.h"
 
 int main(int agrc, char** argv)
 {
 	using namespace raintrace;
 	
-	auto scene = buildSphereScene();
+	auto scene = build_sphere_scene();
 	
-	const int renderWidth = 400;
-	const int renderHeight = 400;
+	const int render_width = 400;
+	const int render_height = 400;
 	
-	auto image_data = ImageData(renderWidth, renderHeight);
-	for (int i = 0; i < renderHeight; i++)
+	auto im_data = image_data(render_width, render_height);
+	for (int i = 0; i < render_width; i++)
 	{
-		for (int j = 0; j < renderWidth; j++)
+		for (int j = 0; j < render_height; j++)
 		{
-			auto ray = buildRay(scene.getCamera(), i, j, renderWidth, renderHeight);
+			auto ray = build_ray(scene.camera(), i, j, render_width, render_height);
 			image_data[i][j] = ray_traced_color(ray, scene);
 		}
 	}
 	
 	std::string filename = "scene.png";
-	save_scene(image_data, filename);
+	save_scene(im_data, filename);
 }
