@@ -1,7 +1,10 @@
+cmake_minimum_required(VERSION 2.8)
+
 project("Raintracer")
 
-add_definitions(-std=c++14)
+add_definitions(-std=c++1y)
 include_directories(/usr/local/include)
 add_subdirectory(classes)
-add_executable(raintracer *.cpp)
+file(GLOB sources ./*.cpp)
+add_executable(raintracer ${sources})
 target_link_libraries(raintracer classes)

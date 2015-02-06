@@ -10,7 +10,7 @@ namespace raintrace
 	class sphere : public primitive
 	{
 	public:
-		sphere(glm::vec4 position, float radius);
+		sphere(glm::vec4 position, float radius, material mat);
 	};
 }
 

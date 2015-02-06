@@ -1,2 +1,3 @@
 include_directories(/usr/local/include)
-add_library(classes *.cpp) 
+file(GLOB sources ./*.cpp)
+add_library(classes ${sources})

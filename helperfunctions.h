@@ -4,12 +4,13 @@
 #include <glm/glm.hpp>
 #include <boost/gil/extension/io/jpeg_io.hpp>
 #include <memory>
-
+#include <glm/gtc/constants.hpp>
 
 #include "classes/scene.h"
 #include "classes/sphere.h"
 #include "classes/plane.h"
 #include "classes/image_data.h"
+#include "classes/camera.h"
 
 
 namespace raintrace
