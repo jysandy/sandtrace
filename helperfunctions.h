@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <boost/gil/extension/io/jpeg_io.hpp>
+#include <memory>
 
 
 #include "classes/scene.h"
@@ -17,11 +18,11 @@ namespace raintrace
 	 * Builds a scene with a sphere resting on a plane surface.
 	 */
 	scene build_sphere_scene();
-	
+
 	/*
 	 * Save the scene as a JPEG image.
 	 */
-	void save_scene();
+	void save_scene(image_data img_data, string filename);
 }
 
 #endif
