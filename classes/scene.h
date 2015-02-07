@@ -19,12 +19,8 @@ namespace raintrace
 		
 		scene(camera c, primitive_vector p);
 		
-		const camera& camera() const;
-		const primitive_vector& primitives() const;
-		
-	private:
-		primitive_vector primitives;
-		camera cam;
+		const primitive_vector primitives;
+		const camera cam;
 	};
 }
 

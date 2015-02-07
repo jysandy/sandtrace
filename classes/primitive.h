@@ -10,6 +10,7 @@ namespace raintrace
 	public:
 		primitive(material mat);
 
+		const material mat;
 	};
 }
 

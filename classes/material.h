@@ -14,6 +14,12 @@ namespace raintrace
 				 float shininess,
 				 float reflectance
 				);
+		
+		const glm::vec4 diffuse;
+		const glm::vec4 ambient;
+		const glm::vec4 specular;
+		const float shininess;
+		const float reflectance;
 	};
 }
 

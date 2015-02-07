@@ -9,6 +9,11 @@ namespace raintrace
 	{
 	public:
 		camera(glm::vec4 look_from, glm::vec4 look_at, glm::vec4 up, float fov);
+		
+		const glm::vec4 look_from;
+		const glm::vec4 look_at;
+		const glm::vec4 up;
+		const float fov;
 	};
 }
 

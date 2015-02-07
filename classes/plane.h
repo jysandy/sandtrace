@@ -11,6 +11,9 @@ namespace raintrace
 	{
 	public:
 		plane(glm::vec4 point, glm::vec4 normal, material mat);
+		
+		const glm::vec4 point;
+		const glm::vec4 normal;
 	};
 }
 

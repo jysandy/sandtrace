@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 	{
 		for (int j = 0; j < render_height; j++)
 		{
-			auto ray = build_ray(scene.camera(), i, j, render_width, render_height);
+			auto ray = build_ray(scene.cam, i, j, render_width, render_height);
 			image_data[i][j] = ray_traced_color(ray, scene);
 		}
 	}

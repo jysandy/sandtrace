@@ -11,6 +11,9 @@ namespace raintrace
 	{
 	public:
 		sphere(glm::vec4 position, float radius, material mat);
+		
+		const glm::vec4 position;
+		const float radius;
 	};
 }
 
