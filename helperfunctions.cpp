@@ -48,9 +48,24 @@ namespace raintrace
 		auto look_at = sphere_position;
 		auto up = glm::vec4{0, 1, 0, 0};
 		float fov = glm::quarter_pi<float>();
-		auto cam = camera(look_from, look_at, up, fov);
+		auto cam = camera{look_from, look_at, up, fov};
+		
+		//Build just one directional light
+		auto ambient = glm::vec4(0.1, 0.1, 0.1, 1.0);
+		auto diffuse = glm::vec4(0.7, 0.7, 0.7, 1.0);
+		auto specular = glm::vec4(0.2, 0.2, 0.2, 1.0);
+		auto direction = glm::vec4(1, -1, 1, 0);
+		auto dlights = std::vector<directional_light>
+		{
+			directional_light{ambient, diffuse, specular, direction}
+		};
 
-		return scene(cam, primitives);
+		return scene
+		{
+			cam, primitives, dlights,
+			std::vector<point_light>{},
+			std::vector<spot_light>{}
+		};
 	}
 
 	void save_scene(image_data img_data, string filename)
