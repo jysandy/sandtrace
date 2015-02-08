@@ -7,7 +7,7 @@ namespace raintrace
 	{
 	}
 	
-	virtual bool plane::try_intersects(ray r, glm::vec4& intersection)
+	virtual bool plane::try_intersects(const ray& r, glm::vec4& intersection)
 	{
 		auto denominator = glm::dot(r.direction, this->normal);
 		if (denominator == 0)

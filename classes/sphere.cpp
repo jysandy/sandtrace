@@ -7,7 +7,7 @@ namespace raintrace
 	{
 	}
 	
-	virtual bool sphere::try_intersects(ray r, glm::vec4& intersection)
+	virtual bool sphere::try_intersects(const ray& r, glm::vec4& intersection)
 	{
 		//Determining the coefficients of the quadratic equation
 		auto foo = r.point - this->position;
