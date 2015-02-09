@@ -72,7 +72,7 @@ namespace raintrace
 	{
 
 
-	  auto view = boost::gil::planar_rgb_view(img_data.getWidth(), img_data.getHeight(), img_data.getR(), img_data.getG(), img_data.getB(), img_data.getWidth());
+	  auto view = boost::gil::planar_rgb_view(img_data.get_width(), img_data.get_height(), img_data.get_r(), img_data.get_g(), img_data.get_b(), img_data.get_width());
 
 	  boost::gil::jpeg_write_view("scene.jpg", view);
 

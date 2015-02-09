@@ -7,7 +7,9 @@
 int main(int argc, char** argv)
 {
 	using namespace raintrace;
-
+	cout << "Rendering..." << endl;
+	clock_t t1, t2;
+	t1 = clock();
 	auto scene = build_sphere_scene();
 
 	const int render_width = 400;
@@ -25,4 +27,7 @@ int main(int argc, char** argv)
 
 	std::string filename = "scene.png";
 	save_scene(im_data, filename);
+
+	t2 = clock();
+	cout << ((float)t2 - (float)t1)/ 1000 << endl;
 }
