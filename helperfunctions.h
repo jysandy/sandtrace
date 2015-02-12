@@ -24,6 +24,12 @@ namespace raintrace
 	 * Save the scene as a JPEG image.
 	 */
 	void save_scene(image_data img_data, string filename);
+
+	/*
+	 * Generates a ray from camera to every pixel in the image plane.
+	 */
+	 ray build_ray(camera cam,int i,int j, const int render_width, const int render_height);
+
 }
 
 #endif

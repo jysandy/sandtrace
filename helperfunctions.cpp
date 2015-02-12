@@ -89,6 +89,36 @@ namespace raintrace
 		);
 	}
 
+	// auto ray_traced_color(ray, scene){
+		
+	// 	// Finding the intersection points
+
+
+	// 	auto min_dist = 1000; // point of perspective -> infinity
+	// 	auto hit_object = NULL;
+
+	// 	// Get primitive stack
+	// 	auto primitives = build_sphere_scene.primitives;
+
+	// 	// auto intersection = get_intersection();
+
+	// 	for (auto& object : primitives){
+	// 		// For every object in the scene...
+
+	// 		// auto t = try_intersects(ray, intersection);
+	// 		auto t = intersect(ray, object); // get dist of the ray to that object
+
+	// 		if(t > 0 && t < min_dist){ // closer objects
+	// 			min_dist = t;
+	// 			hit_object = intersect;
+	// 		}
+	// 	// The intersection data is found.
+
+	// 	// Find color for each hit...
+	// 	// shading model..
+
+	// 	}
+	// }
 }
 
 
