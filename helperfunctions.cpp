@@ -78,7 +78,16 @@ namespace raintrace
 
 	}
 
-	
+	ray	build_ray(camera cam,int i,int j, const int render_width, const int render_height){
+		
+		auto alpha = glm.tan(cam.fov_x() / 2) * ((j - (render_width / 2)) / render_width / 2 ));
+		auto beta = glm.tan(cam.fov_y() / 2) * (((render_height / 2) - i) / render_height / 2 ));
+
+		return ray(
+			cam.look_from,
+			glm::vec4(alpha, beta, -1.0, 0.0);
+		);
+	}
 
 }
 
