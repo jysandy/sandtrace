@@ -8,9 +8,9 @@ namespace sandtrace
 	class ray
 	{
 	public:
-		ray(glm::vec4 point, glm::vec4 direction);
-		
-		glm::vec4 point;
+		ray(glm::vec4 origin, glm::vec4 direction);
+
+		glm::vec4 origin;
 		glm::vec4 direction;
 	};
 }
