@@ -18,7 +18,7 @@ int main(int argc, char** argv)
 	const int render_width = 400;
 	const int render_height = 400;
 
-	auto im_data = image_data(render_width, render_height);
+	auto im_data = image_data{render_width, render_height};
 	for (int i = 0; i < render_width; i++)
 	{
 		for (int j = 0; j < render_height; j++)
@@ -29,13 +29,12 @@ int main(int argc, char** argv)
 	}
 	auto duration = begin_time - chrono::steady_clock::now();
 	std::cout << "done." << std::endl;
+
 	auto hours = chrono::duration_cast<chrono::hours>(duration);
 	auto minutes = chrono::duration_cast<chrono::minutes>(duration % chrono::hours(1));
 	auto seconds = chrono::duration_cast<chrono::seconds>(duration % chrono::minutes(1));
 	std::cout << "Rendering time: ";
-	std::cout << std::setfill('0') << std::setw(2) << hours.count() << ":"
-									<< std::setw(2) << minutes.count() << ":"
-									<< std::setw(2) << seconds.count() << std::endl;
+	std::cout << hours.count() << ":" << minutes.count() << ":" << seconds.count() << std::endl;
 
 	std::cout << "Saving to scene.jpg...";
 	save_scene(im_data, "scene.jpg");
