@@ -1,2 +1,2 @@
-# Raintrace
-A novice attempt to write a Ray Tracer in C++.
+# Sandtrace
+A recursive ray tracer written in C++.
