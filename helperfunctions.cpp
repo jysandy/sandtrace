@@ -72,13 +72,16 @@ namespace sandtrace
 		};
 	}
 
-	//TODO: Verify this formula
 	ray	build_ray(const camera& cam, int i, int j, int render_width, int render_height)
 	{
+		auto alpha = glm::tan(cam.fov / 2f) * ((j - (render_width / 2f)) / (render_width / 2f) );
+		auto beta = glm::tan(cam.fov / 2f) * (((render_height / 2f) - i) / (render_height / 2f) );
 
-		auto alpha = glm::tan(cam.fov / 2f) * ((j - (render_width / 2f)) / render_width / 2f ));
-		auto beta = glm::tan(cam.fov / 2f) * (((render_height / 2f) - i) / render_height / 2f ));
+		//Form a left-handed orthonormal basis. Camera looks down the +w direction.
+		auto w = glm::normalize(cam.look_at - cam.look_from);
+		auto u = glm::normalize(glm::cross(w, cam.up));
+		auto v = glm::normalize (glm::cross(u, w));
 
-		return ray{cam.look_from, glm::vec4(alpha, beta, -1.0, 0.0)};
+		return ray{cam.look_from, alpha * u + beta * v + w};
 	}
 }
