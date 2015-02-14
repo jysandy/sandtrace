@@ -13,7 +13,7 @@
 #include "classes/camera.h"
 
 
-namespace raintrace
+namespace sandtrace
 {
 	/*
 	 * Builds a scene with a sphere resting on a plane surface.
@@ -26,9 +26,9 @@ namespace raintrace
 	void save_scene(image_data img_data, string filename);
 
 	/*
-	 * Generates a ray from camera to every pixel in the image plane.
+	 * Generates a ray from the camera to the pixel at (i, j) in the image plane.
 	 */
-	 ray build_ray(camera cam,int i,int j, const int render_width, const int render_height);
+	 ray build_ray(const camera& cam, int i, int j, int render_width, int render_height);
 
 }
 

@@ -1,6 +1,6 @@
 #include "primitive.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	primitive::primitive(material mat) : mat(mat)
 	{

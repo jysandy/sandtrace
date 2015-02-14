@@ -4,7 +4,7 @@
 #include "material.h"
 #include "ray.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	class primitive
 	{

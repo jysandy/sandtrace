@@ -1,6 +1,6 @@
 #include "material.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	material::material(
 		glm::vec4 diffuse,

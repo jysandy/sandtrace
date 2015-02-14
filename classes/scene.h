@@ -13,7 +13,7 @@
 /*
  * Defines a 3D scene as a camera and a collection of primitives.
  */
-namespace raintrace
+namespace sandtrace
 {
 	class scene
 	{

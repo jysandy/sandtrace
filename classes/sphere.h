@@ -7,7 +7,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace raintrace
+namespace sandtrace
 {
 	class sphere : public primitive
 	{

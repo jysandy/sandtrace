@@ -5,7 +5,7 @@
 
 #include "primitive.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	class plane : public primitive
 	{

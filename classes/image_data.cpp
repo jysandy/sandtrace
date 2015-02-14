@@ -1,15 +1,19 @@
 #include "image_data.h"
 
-namespace raintrace{
+namespace sandtrace{
 	image_data::image_data(
 		int render_width,
 		int render_height)
+		: render_width(render_width), render_height(render_height)
 	{
+		for (int i = 0; i < render_width; i++)
+		{
+			this->color_matrix.push_back(vector<glm::vec4>{render_height});
+		}
 	}
 
-	auto image_data::get_width(){}
-	auto image_data::get_height(){}
-	auto image_data::get_r(){}
-	auto image_data::get_g(){}
-	auto image_data::get_b(){}
+	glm::vec4& image_data::operator()(int x, int y)
+	{
+		return color_matrix[x][y];
+	}
 }

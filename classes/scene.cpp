@@ -1,6 +1,6 @@
 #include "scene.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	scene::scene(camera c, scene::primitive_vector p,
 		std::vector<directional_light> directional_lights,

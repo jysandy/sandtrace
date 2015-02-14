@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-namespace raintrace
+namespace sandtrace
 {
 	class directional_light
 	{

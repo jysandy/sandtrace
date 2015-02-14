@@ -1,6 +1,6 @@
 #include "helperfunctions.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	scene build_sphere_scene()
 	{
@@ -9,13 +9,15 @@ namespace raintrace
 		//Add the sphere
 		auto sphere_position = glm::vec4{10, 10, -10, 1};
 		auto sphere_radius = 6;
-		auto sphere_colour = glm::vec4{
+		auto sphere_colour = glm::vec4
+		{
 			0xF2 / 255f,
 			0xA3 / 255f,
 			0xA3 / 255f,
 			1
 		};//A light pinkish colour
-		auto sphere_mat = material{
+		auto sphere_mat = material
+		{
 			sphere_colour,
 			sphere_colour,
 			sphere_colour,
@@ -27,13 +29,15 @@ namespace raintrace
 		//Add the plane
 		auto plane_point = glm::vec4{5, 0, -5, 1};
 		auto plane_normal = glm::vec4{0, 1, 0, 0};
-		auto plane_colour = glm::vec4{
+		auto plane_colour = glm::vec4
+		{
 			0xDA / 255f,
 			0xDA / 255f,
 			0xDA / 255f,
 			1
 		};//A silvery-grey colour
-		auto plane_mat = material{
+		auto plane_mat = material
+		{
 			plane_colour,
 			plane_colour,
 			plane_colour,
@@ -49,7 +53,7 @@ namespace raintrace
 		auto up = glm::vec4{0, 1, 0, 0};
 		float fov = glm::quarter_pi<float>();
 		auto cam = camera{look_from, look_at, up, fov};
-		
+
 		//Build just one directional light
 		auto ambient = glm::vec4(0.1, 0.1, 0.1, 1.0);
 		auto diffuse = glm::vec4(0.7, 0.7, 0.7, 1.0);
@@ -68,57 +72,13 @@ namespace raintrace
 		};
 	}
 
-	void save_scene(image_data img_data, string filename)
+	//TODO: Verify this formula
+	ray	build_ray(const camera& cam, int i, int j, int render_width, int render_height)
 	{
 
+		auto alpha = glm::tan(cam.fov / 2f) * ((j - (render_width / 2f)) / render_width / 2f ));
+		auto beta = glm::tan(cam.fov / 2f) * (((render_height / 2f) - i) / render_height / 2f ));
 
-	  auto view = boost::gil::planar_rgb_view(img_data.get_width(), img_data.get_height(), img_data.get_r(), img_data.get_g(), img_data.get_b(), img_data.getidth());
-
-	  boost::gil::jpeg_write_view("scene.jpg", view);
-
+		return ray{cam.look_from, glm::vec4(alpha, beta, -1.0, 0.0)};
 	}
-
-	ray	build_ray(camera cam,int i,int j, const int render_width, const int render_height){
-		
-		auto alpha = glm.tan(cam.fov_x() / 2) * ((j - (render_width / 2)) / render_width / 2 ));
-		auto beta = glm.tan(cam.fov_y() / 2) * (((render_height / 2) - i) / render_height / 2 ));
-
-		return ray(
-			cam.look_from,
-			glm::vec4(alpha, beta, -1.0, 0.0);
-		);
-	}
-
-	// auto ray_traced_color(ray, scene){
-		
-	// 	// Finding the intersection points
-
-
-	// 	auto min_dist = 1000; // point of perspective -> infinity
-	// 	auto hit_object = NULL;
-
-	// 	// Get primitive stack
-	// 	auto primitives = build_sphere_scene.primitives;
-
-	// 	// auto intersection = get_intersection();
-
-	// 	for (auto& object : primitives){
-	// 		// For every object in the scene...
-
-	// 		// auto t = try_intersects(ray, intersection);
-	// 		auto t = intersect(ray, object); // get dist of the ray to that object
-
-	// 		if(t > 0 && t < min_dist){ // closer objects
-	// 			min_dist = t;
-	// 			hit_object = intersect;
-	// 		}
-	// 	// The intersection data is found.
-
-	// 	// Find color for each hit...
-	// 	// shading model..
-
-	// 	}
-	// }
 }
-
-

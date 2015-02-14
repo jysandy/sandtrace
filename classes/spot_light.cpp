@@ -1,6 +1,6 @@
 #include "spot_light.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	spot_light::spot_light(
 		glm::vec4 ambient,

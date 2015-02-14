@@ -1,6 +1,6 @@
 #include "directional_light.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	directional_light::directional_light(
 		glm::vec4 ambient,

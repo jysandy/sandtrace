@@ -1,6 +1,6 @@
 #include "sphere.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	sphere::sphere(glm::vec4 position, float radius, material mat) :
 	primitive(mat), position(position), radius(radius)

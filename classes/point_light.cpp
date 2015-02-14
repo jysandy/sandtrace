@@ -1,6 +1,6 @@
 #include "point_light.h"
 
-namespace raintrace
+namespace sandtrace
 {
 	point_light::point_light(
 		glm::vec4 ambient,

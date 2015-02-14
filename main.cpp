@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {
-	using namespace raintrace;
+	using namespace sandtrace;
 	cout << "Rendering..." << endl;
 	clock_t t1, t2;
 	t1 = clock();
@@ -21,7 +21,7 @@ int main(int argc, char** argv)
 		for (int j = 0; j < render_height; j++)
 		{
 			auto ray = build_ray(scene.cam, i, j, render_width, render_height);
-			im_data[i][j] = ray_traced_color(ray, scene);
+			im_data(i, j) = ray_traced_color(ray, scene);
 		}
 	}
 
