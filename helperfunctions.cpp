@@ -84,4 +84,26 @@ namespace sandtrace
 
 		return ray{cam.look_from, alpha * u + beta * v + w};
 	}
+
+	void save_scene(image_data img_data, std::string filename)
+	{
+		using namespace boost::gil = gil;
+
+		auto target_image = gil::rgb8_image_t{img_data.render_width, image_data.render_height};
+		auto target_image_view = gil::view{target_image};
+
+		for (int x = 0; x < target_image_view.width(); x++)
+		{
+			for (int y = 0; i < target_image_view.height(); y++)
+			{
+				//Mapping the color values of img_data, which are floats in [0, 1],
+				//into integers in [0, 255].
+				gil::get_color(target_image_view(x, y), gil::red_t()) = static_cast<int>(img_data(x, y).r * 255);
+				gil::get_color(target_image_view(x, y), gil::green_t()) = static_cast<int>(img_data(x, y).g * 255);
+				gil::get_color(target_image_view(x, y), gil::blue_t()) = static_cast<int>(img_data(x, y).b * 255);
+			}
+		}
+
+		gil::jpeg_write_view(filename, target_image_view);
+	}
 }
