@@ -170,6 +170,154 @@ namespace sandtrace
 		return idata;
 	}
 
+	glm::vec4 phong_color(const ray& eye_to_point, const intersection_data& intersection, const scene& target_scene)
+	{
+		auto dcolor = directional_phong_color(eye_to_point, intersection, target_scene);
+		auto pcolor = point_phong_color(eye_to_point, intersection, target_scene);
+		auto scolor = spot_phong_color(eye_to_point, intersection, target_scene);
+
+		auto final_color = dcolor + pcolor + scolor;
+		return glm::clamp(final_color, 0.0, 1.0);
+	}
+
+	glm::vec4 directional_phong_color(const ray& eye_to_point, const intersection_data& idata, const scene& target_scene)
+	{
+		auto final_color = glm::vec4{0, 0, 0, 1};
+
+		for (auto dlight : target_scene.directional_lights)
+		{
+			final_color += dlight.ambient * idata.mat.ambient;
+
+			//For a directional light, the shadow ray is simply the negative
+			//of the light's direction.
+			auto light_vector = -dlight.direction;
+			auto shadow_ray = ray{idata.intersection_point, glm::normalize(light_vector)};
+			if (is_blocked(shadow_ray, target_scene.primitives))
+			{
+				continue;
+			}
+			light_vector = glm::normalize(light_vector);
+
+			//Diffuse component
+			auto kd = std::max(glm::dot(light_vector, idata.normal), 0);
+			final_color += kd * dlight.diffuse * idata.mat.diffuse;
+
+			if (kd > 0)
+			{
+				//Specular component
+				auto reflected_ray = glm::reflect(-shadow_ray, idata.normal);
+				auto ks = std::max(glm::dot(reflected_ray, -eye_to_point.direction));
+				ks = glm::pow(ks, idata.mat.shininess);
+				final_color += ks * dlight.specular * idata.mat.specular;
+			}
+		}
+
+		return final_color;
+	}
+
+	glm::vec4 point_phong_color(const ray& eye_to_point, const intersection_data& idata, const scene& target_scene)
+	{
+		auto final_color = glm::vec4{0, 0, 0, 1};
+
+		for (auto plight : target_scene.point_lights)
+		{
+			final_color += plight.ambient * idata.mat.ambient;
+
+			//Here the shadow ray is the ray from the point of intersection to the light.
+			auto light_vector = plight.position - idata.intersection_point;
+			auto shadow_ray = ray{idata.intersection_point, glm::normalize(light_vector)};
+			if (is_blocked(shadow_ray, target_scene.primitives, plight.position))
+			{
+				continue;
+			}
+
+			auto d = glm::length(light_vector);
+			light_vector = glm::normalize(light_vector);
+			auto attenuation_factor = 1.0f / (plight.a0 + plight.a1 * d + plight.a2 * d * d);
+
+			//Diffuse component
+			auto kd = std::max(glm::dot(light_vector, idata.normal), 0);
+			final_color += kd * dlight.diffuse * idata.mat.diffuse * attenuation_factor;
+
+			if (kd > 0)
+			{
+				//Specular component
+				auto ref = glm::reflect(-light_vector, idata.normal);
+				auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0);
+				ks = glm::pow(ks, idata.mat.shininess);
+				final_color += ks * dlight.specular * idata.mat.specular * attenuation_factor;
+			}
+		}
+
+		return final_color;
+	}
+
+	glm::vec4 spot_phong_color(const ray& eye_to_point, const intersection_data& idata, const scene& target_scene)
+	{
+		auto final_color = glm::vec4{0, 0, 0, 1};
+
+		for (auto slight : target_scene.spot_lights)
+		{
+			final_color += slight.ambient * idata.mat.ambient;
+
+			auto light_vector = slight.position - idata.intersection_point;
+			auto shadow_ray = ray{idata.intersection_point, glm::normalize(light_vector)};
+
+			auto d = glm::length(light_vector);
+			light_vector = glm::normalize(light_vector);
+			auto attenuation_factor = 1.0f / (slight.a0 + slight.a1 * d + slight.a2 * d * d);
+			auto intensity_factor = glm::pow(std::max(glm::dot(-light_vector, slight.direction), 0), slight.power);
+
+			//Diffuse component
+			auto kd = std::max(glm::dot(light_vector, idata.normal), 0);
+			final_color += kd * slight.diffuse * idata.mat.diffuse * attenuation_factor * intensity_factor;
+
+			if (kd > 0)
+			{
+				//Specular component
+				auto ref = glm::reflect(-light_vector, idata.normal);
+				auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0);
+				ks = glm::pow(ks, idata.mat.shininess);
+				final_color += ks * slight.specular * idata.mat.specular * attenuation_factor * intensity_factor;
+			}
+		}
+
+		return final_color;
+	}
+
+	bool is_blocked(const ray& r, const scene::primitive_vector& primitives)
+	{
+		for (auto p : primitives)
+		{
+			glm::vec4 intersection;
+			if (p->try_intersects(r, intersection))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool is_blocked(const ray& r, const scene::primitive_vector& primitives, const glm::vec4& limit)
+	{
+		for (auto p : primitives)
+		{
+			glm::vec4 intersection;
+			if (p->try_intersects(r, intersection))
+			{
+				auto max_length = glm::length(limit - r.origin);
+				auto length = glm::length(intersection - r.origin);
+				if (length < max_length)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	void save_scene(image_data img_data, std::string filename)
 	{
 		using namespace boost::gil = gil;

@@ -6,6 +6,7 @@
 #include <vector>
 #include <stack>
 #include <limits>
+#include <algorithm>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -58,7 +59,32 @@ namespace sandtrace
 	/*
 	 * Applies the Phong model to compute the color at the intersection point.
 	 */
-	glm::vec4 phong_color(const ray& eye_to_point, const intersection_data& intersection, const scene& scene);
+	glm::vec4 phong_color(const ray& eye_to_point, const intersection_data& intersection, const scene& target_scene);
+
+	/*
+	 * Computes the contribution of directional lights in the scene to the final color.
+	 */
+	glm::vec4 directional_phong_color(const ray& eye_to_point, const intersection_data& idata, const scene& target_scene);
+
+	/*
+	 * Computes the contribution of point lights in the scene to the final color.
+	 */
+	glm::vec4 point_phong_color(const ray& eye_to_point, const intersection_data& idata, const scene& target_scene);
+
+	/*
+	 * Computes the contribution of spot lights in the scene to the final color.
+	 */
+	glm::vec4 spot_phong_color(const ray& eye_to_point, const intersection_data& idata, const scene& target_scene);
+
+	/*
+	 * Tests if the ray intersects ANY primitive.
+	 */
+	bool is_blocked(const ray& r, const scene::primitive_vector& primitives);
+
+	/*
+	 * Tests if the ray is blocked at any point between its origin and the limit.
+	 */
+	bool is_blocked(const ray& r, const scene::primitive_vector& primitives, const glm::vec4& limit);
 
 	/*
 	 * Save the scene as a JPEG image.
