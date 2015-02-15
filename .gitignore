@@ -2,3 +2,4 @@
 .kdev4/
 temp/
 *.kdev4
+build/
