@@ -2,7 +2,7 @@
 #define __RAINTRACE_SCENE_H__
 
 #include <vector>
-#include <memory
+#include <memory>
 
 #include "camera.h"
 #include "primitive.h"
