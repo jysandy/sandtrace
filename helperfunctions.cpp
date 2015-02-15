@@ -24,7 +24,7 @@ namespace sandtrace
 			8,
 			0.3
 		};//Rather dull, doesn't reflect/bleed much colour
-		primitives.push_back(std::make_unique<sphere>{sphere_position, sphere_radius, sphere_mat});
+		primitives.push_back(std::make_shared<sphere>{sphere_position, sphere_radius, sphere_mat});
 
 		//Add the plane
 		auto plane_point = glm::vec4{5, 0, -5, 1};
@@ -44,7 +44,7 @@ namespace sandtrace
 			64,
 			0.8
 		};//Shiny, mirror-like surface
-		primitives.push_back(std::make_unique<plane>{plane_point, plane_normal});
+		primitives.push_back(std::make_shared<plane>{plane_point, plane_normal});
 
 		//Build the camera
 		//Positioning the camera to look at the sphere from slightly above
@@ -83,6 +83,53 @@ namespace sandtrace
 		auto v = glm::normalize (glm::cross(u, w));
 
 		return ray{cam.look_from, alpha * u + beta * v + w};
+	}
+
+	glm::vec4 ray_traced_color(const ray& pixel_ray, const scene& target_scene)
+	{
+		const glm::vec4 empty_color{0.0, 0.0, 0.0, 1.0};
+		const int max_stack_depth = 3;
+
+		//The recursive ray-tracing is performed iteratively, using a stack.
+		struct stack_entry
+		{
+			glm::vec4 color;
+			float reflectance;
+
+			stack_entry(glm::vec4 c, float r) : color(c), reflectance(r) {}
+		};
+		std::stack<const stack_entry> recursion_stack;
+		auto current_ray = pixel_ray;
+		//This prevents the stack from ending up empty,
+		//if the ray intersected no primitive.
+		recursion_stack.emplace(empty_color, 1);
+
+		while (recursion_stack.size() < max_stack_depth + 1)
+		{
+			auto data = nearest_intersection(pixel_ray, target_scene.primitives);
+			if (!data.intersects)
+			{
+				//If the ray did not intersect any primitive
+				recursion_stack.emplace(empty_color, 0);
+				break;
+			}
+
+			auto color = phong_color(current_ray, data, target_scene);
+			recursion_stack.emplace(color, data.mat.reflectance);
+			current_ray = glm::reflect(current_ray, data.normal);
+		}
+
+		glm::vec4 final_color = recursion_stack.top();
+		recursion_stack.pop();
+
+		while (!recursion_stack.empty())
+		{
+			auto entry = stack.top();
+			stack.pop();
+			final_color = entry.color + entry.reflectance * final_color;
+		}
+
+		return final_color;
 	}
 
 	void save_scene(image_data img_data, std::string filename)
