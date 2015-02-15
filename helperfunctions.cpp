@@ -72,7 +72,7 @@ namespace sandtrace
 		};
 	}
 
-	ray	build_ray(const camera& cam, int i, int j, int render_width, int render_height)
+	ray build_ray(const camera& cam, int i, int j, int render_width, int render_height)
 	{
 		auto alpha = glm::tan(cam.fov / 2f) * ((j - (render_width / 2f)) / (render_width / 2f) );
 		auto beta = glm::tan(cam.fov / 2f) * (((render_height / 2f) - i) / (render_height / 2f) );
@@ -130,6 +130,44 @@ namespace sandtrace
 		}
 
 		return final_color;
+	}
+
+	intersection_data nearest_intersection(const ray& r, const scene::primitive_vector& primitives)
+	{
+		scene::primitive_vector::value_type closest_primitive;
+		glm::vec4 closest_intersection;
+		auto closest_distance = std::max<float>();
+		bool intersects = false;
+		for (auto p : primitives)
+		{
+			glm::vec4 intersection;
+			if (p->try_intersects(r, intersection))
+			{
+				intersects = true;
+				auto distance = glm::length(intersection - r.origin);
+				if (distance < closest_distance)
+				{
+					closest_distance = distance;
+					closest_intersection = intersection;
+					closest_primitive = p;
+				}
+			}
+		}
+
+		intersection_data idata;
+
+		if (!intersects)
+		{
+			idata.intersects = false;
+			return idata;
+		}
+
+		idata.intersects = true;
+		idata.mat = closest_primitive->mat;
+		idata.intersection_point = closest_intersection;
+		idata.normal = closest_primitive->normal_at(closest_intersection);
+
+		return idata;
 	}
 
 	void save_scene(image_data img_data, std::string filename)
