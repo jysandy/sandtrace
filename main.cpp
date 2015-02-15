@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 	using namespace std::chrono = chrono;
 
 	std::cout << "Constructing scene...";
-	auto scene = build_sphere_scene();
+	auto sphere_scene = build_sphere_scene();
 	std::cout << "done." << std::endl;
 
 	std::cout << "Rendering...";
@@ -23,8 +23,8 @@ int main(int argc, char** argv)
 	{
 		for (int j = 0; j < render_height; j++)
 		{
-			auto ray = build_ray(scene.cam, i, j, render_width, render_height);
-			im_data(i, j) = ray_traced_color(ray, scene);
+			auto pixel_ray = build_ray(scene.cam, i, j, render_width, render_height);
+			im_data(i, j) = ray_traced_color(pixel_ray, sphere_scene);
 		}
 	}
 	auto duration = begin_time - chrono::steady_clock::now();

@@ -18,14 +18,14 @@ namespace sandtrace
 	class scene
 	{
 	public:
-		typedef std::vector<std::unique_ptr<primitive>> primitive_vector;
-		
+		typedef std::vector<std::shared_ptr<primitive>> primitive_vector;
+
 		scene(camera c, primitive_vector p,
 			std::vector<directional_light> directional_lights,
 			std::vector<point_light> point_lights,
 			std::vector<spot_light> spot_lights
 		);
-		
+
 		primitive_vector primitives;
 		camera cam;
 		std::vector<directional_light> directional_lights;
