@@ -40,10 +40,15 @@ namespace sandtrace
 		{
 			intersection = r.origin + x2 * r.direction;
 		}
-		else
+		else if (x1 > 0 && x2 > 0)
 		{
 			//Choose the nearest intersection.
 			intersection = r.origin + std::min(x1, x2) * r.direction;
+		}
+		else
+		{
+			//The sphere is behind the ray.
+			return false;
 		}
 
 		return true;

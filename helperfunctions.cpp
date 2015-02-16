@@ -3,34 +3,41 @@
 namespace sandtrace
 {
 	//The distance moved towards the light source when computing the shadow ray.
-	const float epsilon = 0.0001f;
+	const float epsilon = 0.0008f;
 
 	scene build_sphere_scene()
 	{
 		auto primitives = scene::primitive_vector{};
 
 		//Add the sphere
-		auto sphere_position = glm::vec3{10, 10, -10};
-		auto sphere_radius = 6;
+		auto sphere_position = glm::vec3{10, 7, -10};
+		auto sphere_radius = 7;
 
-		auto sphere_colour = glm::vec4
-		{
-			0xF2 / 255.0f,
-			0xA3 / 255.0f,
-			0xA3 / 255.0f,
-			1
-		};//A light pinkish colour
-
-		//auto sphere_colour = glm::vec4(0, 0, 1, 1);
+		auto sphere_colour = glm::vec4(0, 0, 1, 1);
 		auto sphere_mat = material
 		{
 			sphere_colour,
 			sphere_colour,
-			sphere_colour,
+			glm::vec4{0.3, 0.3, 0.3, 1.0},
 			64,
-			0.3
+			0.15
 		};//Rather dull, doesn't reflect/bleed much colour
 		primitives.push_back(std::make_shared<sphere>(sphere_position, sphere_radius, sphere_mat));
+
+		auto sphere2_colour = glm::vec4{0.2, 0.2, 0.2, 1.0};
+
+		auto sphere2_mat = material
+		{
+			sphere2_colour,
+			sphere2_colour,
+			glm::vec4{0.6, 0.6, 0.6, 1.0},
+			128,
+			1.0
+		};
+
+		auto sphere2_position = sphere_position + glm::vec3{20, 0, 0};
+		auto sphere2_radius = 7;
+		primitives.push_back(std::make_shared<sphere>(sphere2_position, sphere2_radius, sphere2_mat));
 
 		//Add the plane
 		auto plane_point = glm::vec3{5, 0, -5};
@@ -46,16 +53,16 @@ namespace sandtrace
 		{
 			plane_colour,
 			plane_colour,
-			plane_colour,
-			64,
-			0.8
-		};//Shiny, mirror-like surface
+			glm::vec4{0.5, 0.5, 0.5, 1.0},
+			128,
+			0.2
+		};
 		primitives.push_back(std::make_shared<plane>(plane_point, plane_normal, plane_mat));
 
 		//Build the camera
 		//Positioning the camera to look at the sphere from slightly above
-		auto look_from = glm::vec3{20, 12, 10};
-		auto look_at = sphere_position;
+		auto look_from = glm::vec3{20, 12, 20};
+		auto look_at = (sphere_position + sphere2_position) / 2.0f;
 		auto up = glm::vec3{0, 1, 0};
 		float fov = glm::half_pi<float>();
 		auto cam = camera{look_from, look_at, up, fov};
@@ -94,7 +101,7 @@ namespace sandtrace
 	glm::vec4 ray_traced_color(const ray& pixel_ray, const scene& target_scene)
 	{
 		const glm::vec4 empty_color{0.0, 0.0, 0.0, 1.0};
-		const int max_stack_depth = 6;
+		const int max_stack_depth = 3;
 
 		//The recursive ray-tracing is performed iteratively, using a stack.
 		struct stack_entry
@@ -108,7 +115,7 @@ namespace sandtrace
 		auto current_ray = pixel_ray;
 		//This prevents the stack from ending up empty,
 		//if the ray intersected no primitive.
-		recursion_stack.emplace(empty_color, 1);
+		recursion_stack.emplace(empty_color, 1.0f);
 
 		while (recursion_stack.size() < max_stack_depth + 1)
 		{
@@ -116,7 +123,7 @@ namespace sandtrace
 			if (!data.intersects)
 			{
 				//If the ray did not intersect any primitive
-				recursion_stack.emplace(empty_color, 0);
+				recursion_stack.emplace(empty_color, 0.0f);
 				break;
 			}
 
@@ -210,14 +217,11 @@ namespace sandtrace
 			auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
 			final_color += kd * dlight.diffuse * idata.mat.diffuse;
 
-			if (kd > 0)
-			{
-				//Specular component
-				auto reflected_ray = glm::reflect(-light_vector, idata.normal);
-				auto ks = std::max(glm::dot(reflected_ray, -eye_to_point.direction), 0.0f);
-				ks = glm::pow(ks, idata.mat.shininess);
-				final_color += ks * dlight.specular * idata.mat.specular;
-			}
+			//Specular component
+			auto reflected_ray = glm::reflect(-light_vector, idata.normal);
+			auto ks = std::max(glm::dot(reflected_ray, -eye_to_point.direction), 0.0f);
+			ks = glm::pow(ks, idata.mat.shininess);
+			final_color += ks * dlight.specular * idata.mat.specular;
 		}
 
 		return final_color;
@@ -247,14 +251,11 @@ namespace sandtrace
 			auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
 			final_color += kd * plight.diffuse * idata.mat.diffuse * attenuation_factor;
 
-			if (kd > 0)
-			{
-				//Specular component
-				auto ref = glm::reflect(-light_vector, idata.normal);
-				auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
-				ks = glm::pow(ks, idata.mat.shininess);
-				final_color += ks * plight.specular * idata.mat.specular * attenuation_factor;
-			}
+			//Specular component
+			auto ref = glm::reflect(-light_vector, idata.normal);
+			auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
+			ks = glm::pow(ks, idata.mat.shininess);
+			final_color += ks * plight.specular * idata.mat.specular * attenuation_factor;
 		}
 
 		return final_color;
@@ -282,14 +283,11 @@ namespace sandtrace
 			auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
 			final_color += kd * slight.diffuse * idata.mat.diffuse * attenuation_factor * intensity_factor;
 
-			if (kd > 0)
-			{
-				//Specular component
-				auto ref = glm::reflect(-light_vector, idata.normal);
-				auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
-				ks = glm::pow(ks, idata.mat.shininess);
-				final_color += ks * slight.specular * idata.mat.specular * attenuation_factor * intensity_factor;
-			}
+			//Specular component
+			auto ref = glm::reflect(-light_vector, idata.normal);
+			auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
+			ks = glm::pow(ks, idata.mat.shininess);
+			final_color += ks * slight.specular * idata.mat.specular * attenuation_factor * intensity_factor;
 		}
 
 		return final_color;
