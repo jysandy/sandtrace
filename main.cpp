@@ -1,6 +1,8 @@
 #include <chrono>
 #include <iostream>
 
+#include <boost/lexical_cast.hpp>
+
 #include "classes/image_data.h"
 #include "classes/scene.h"
 #include "helperfunctions.h"
@@ -10,14 +12,29 @@ int main(int argc, char** argv)
 	using namespace sandtrace;
 	namespace chrono = std::chrono;
 
+	if (argc < 3)
+	{
+		std::cout << "Usage: sandtrace <width> <height>" << std::endl;
+		return 1;
+	}
+
 	std::cout << "Constructing scene...";
 	auto sphere_scene = build_sphere_scene();
 	std::cout << "done." << std::endl;
 
 	std::cout << "Rendering..." << std::flush;
 	auto begin_time = chrono::steady_clock::now();
-	const int render_width = 600;
-	const int render_height = 600;
+	int render_width, render_height;
+	try
+	{
+		render_width = boost::lexical_cast<int>(argv[1]);
+		render_height = boost::lexical_cast<int>(argv[2]);
+	}
+	catch(const boost::bad_lexical_cast&)
+	{
+		std::cout << "Invalid dimensions" << std::endl;
+		return 2;
+	}
 
 	auto im_data = image_data{render_width, render_height};
 	for (int i = 0; i < render_width; i++)
