@@ -2,6 +2,11 @@
 
 namespace sandtrace
 {
+	material::material()
+	{
+		
+	}
+
 	material::material(
 		glm::vec4 diffuse,
 		glm::vec4 ambient,

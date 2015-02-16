@@ -2,7 +2,7 @@
 
 namespace sandtrace
 {
-	ray::ray(glm::vec4 origin, glm::vec4 direction) :
+	ray::ray(glm::vec3 origin, glm::vec3 direction) :
 	origin(origin), direction(glm::normalize(direction))
 	{
 	}

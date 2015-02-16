@@ -2,38 +2,44 @@
 
 namespace sandtrace
 {
+	//The distance moved towards the light source when computing the shadow ray.
+	const float epsilon = 0.0001f;
+
 	scene build_sphere_scene()
 	{
 		auto primitives = scene::primitive_vector{};
 
 		//Add the sphere
-		auto sphere_position = glm::vec4{10, 10, -10, 1};
+		auto sphere_position = glm::vec3{10, 10, -10};
 		auto sphere_radius = 6;
+
 		auto sphere_colour = glm::vec4
 		{
-			0xF2 / 255f,
-			0xA3 / 255f,
-			0xA3 / 255f,
+			0xF2 / 255.0f,
+			0xA3 / 255.0f,
+			0xA3 / 255.0f,
 			1
 		};//A light pinkish colour
+
+		//auto sphere_colour = glm::vec4(0, 0, 1, 1);
 		auto sphere_mat = material
 		{
 			sphere_colour,
 			sphere_colour,
 			sphere_colour,
-			8,
+			64,
 			0.3
 		};//Rather dull, doesn't reflect/bleed much colour
-		primitives.push_back(std::make_shared<sphere>{sphere_position, sphere_radius, sphere_mat});
+		primitives.push_back(std::make_shared<sphere>(sphere_position, sphere_radius, sphere_mat));
 
 		//Add the plane
-		auto plane_point = glm::vec4{5, 0, -5, 1};
-		auto plane_normal = glm::vec4{0, 1, 0, 0};
+		auto plane_point = glm::vec3{5, 0, -5};
+		auto plane_normal = glm::vec3{0, 1, 0};
 		auto plane_colour = glm::vec4
 		{
-			0xDA / 255f,
-			0xDA / 255f,
-			0xDA / 255f,
+			0xDA / 255.0f,
+			0xDA / 255.0f,
+			0xDA / 255.0f,
 			1
 		};//A silvery-grey colour
 		auto plane_mat = material
@@ -44,21 +50,21 @@ namespace sandtrace
 			64,
 			0.8
 		};//Shiny, mirror-like surface
-		primitives.push_back(std::make_shared<plane>{plane_point, plane_normal});
+		primitives.push_back(std::make_shared<plane>(plane_point, plane_normal, plane_mat));
 
 		//Build the camera
 		//Positioning the camera to look at the sphere from slightly above
-		auto look_from = glm::vec4{10, 12, 0, 1};
+		auto look_from = glm::vec3{20, 12, 10};
 		auto look_at = sphere_position;
-		auto up = glm::vec4{0, 1, 0, 0};
-		float fov = glm::quarter_pi<float>();
+		auto up = glm::vec3{0, 1, 0};
+		float fov = glm::half_pi<float>();
 		auto cam = camera{look_from, look_at, up, fov};
 
 		//Build just one directional light
 		auto ambient = glm::vec4(0.1, 0.1, 0.1, 1.0);
 		auto diffuse = glm::vec4(0.7, 0.7, 0.7, 1.0);
-		auto specular = glm::vec4(0.2, 0.2, 0.2, 1.0);
-		auto direction = glm::vec4(1, -1, 1, 0);
+		auto specular = glm::vec4(0.5, 0.5, 0.5, 1.0);
+		auto direction = glm::vec3(1, -1, -1);
 		auto dlights = std::vector<directional_light>
 		{
 			directional_light{ambient, diffuse, specular, direction}
@@ -74,13 +80,13 @@ namespace sandtrace
 
 	ray build_ray(const camera& cam, int i, int j, int render_width, int render_height)
 	{
-		auto alpha = glm::tan(cam.fov / 2f) * ((j - (render_width / 2f)) / (render_width / 2f) );
-		auto beta = glm::tan(cam.fov / 2f) * (((render_height / 2f) - i) / (render_height / 2f) );
+		auto alpha = glm::tan(cam.fov / 2.0f) * ((i - (render_width / 2.0f)) / (render_width / 2.0f) );
+		auto beta = glm::tan(cam.fov / 2.0f) * (((render_height / 2.0f) - j) / (render_height / 2.0f) );
 
 		//Form a left-handed orthonormal basis. Camera looks down the +w direction.
 		auto w = glm::normalize(cam.look_at - cam.look_from);
 		auto u = glm::normalize(glm::cross(w, cam.up));
-		auto v = glm::normalize (glm::cross(u, w));
+		auto v = glm::normalize(glm::cross(u, w));
 
 		return ray{cam.look_from, alpha * u + beta * v + w};
 	}
@@ -88,7 +94,7 @@ namespace sandtrace
 	glm::vec4 ray_traced_color(const ray& pixel_ray, const scene& target_scene)
 	{
 		const glm::vec4 empty_color{0.0, 0.0, 0.0, 1.0};
-		const int max_stack_depth = 3;
+		const int max_stack_depth = 6;
 
 		//The recursive ray-tracing is performed iteratively, using a stack.
 		struct stack_entry
@@ -98,7 +104,7 @@ namespace sandtrace
 
 			stack_entry(glm::vec4 c, float r) : color(c), reflectance(r) {}
 		};
-		std::stack<const stack_entry> recursion_stack;
+		std::stack<stack_entry> recursion_stack;
 		auto current_ray = pixel_ray;
 		//This prevents the stack from ending up empty,
 		//if the ray intersected no primitive.
@@ -106,7 +112,7 @@ namespace sandtrace
 
 		while (recursion_stack.size() < max_stack_depth + 1)
 		{
-			auto data = nearest_intersection(pixel_ray, target_scene.primitives);
+			auto data = nearest_intersection(current_ray, target_scene.primitives);
 			if (!data.intersects)
 			{
 				//If the ray did not intersect any primitive
@@ -116,16 +122,17 @@ namespace sandtrace
 
 			auto color = phong_color(current_ray, data, target_scene);
 			recursion_stack.emplace(color, data.mat.reflectance);
-			current_ray = glm::reflect(current_ray, data.normal);
+			auto new_direction = glm::reflect(current_ray.direction, data.normal);
+			current_ray = ray{data.intersection_point, new_direction};
 		}
 
-		glm::vec4 final_color = recursion_stack.top();
+		glm::vec4 final_color = recursion_stack.top().color;
 		recursion_stack.pop();
 
 		while (!recursion_stack.empty())
 		{
-			auto entry = stack.top();
-			stack.pop();
+			auto entry = recursion_stack.top();
+			recursion_stack.pop();
 			final_color = entry.color + entry.reflectance * final_color;
 		}
 
@@ -135,16 +142,17 @@ namespace sandtrace
 	intersection_data nearest_intersection(const ray& r, const scene::primitive_vector& primitives)
 	{
 		scene::primitive_vector::value_type closest_primitive;
-		glm::vec4 closest_intersection;
-		auto closest_distance = std::max<float>();
+		glm::vec3 closest_intersection;
+		auto closest_distance = std::numeric_limits<float>::max();
 		bool intersects = false;
+		auto moved_r = ray{r.origin + epsilon * r.direction, r.direction};
 		for (auto p : primitives)
 		{
-			glm::vec4 intersection;
-			if (p->try_intersects(r, intersection))
+			glm::vec3 intersection;
+			if (p->try_intersects(moved_r, intersection))
 			{
 				intersects = true;
-				auto distance = glm::length(intersection - r.origin);
+				auto distance = glm::length(intersection - moved_r.origin);
 				if (distance < closest_distance)
 				{
 					closest_distance = distance;
@@ -177,7 +185,7 @@ namespace sandtrace
 		auto scolor = spot_phong_color(eye_to_point, intersection, target_scene);
 
 		auto final_color = dcolor + pcolor + scolor;
-		return glm::clamp(final_color, 0.0, 1.0);
+		return glm::clamp(final_color, 0.0f, 1.0f);
 	}
 
 	glm::vec4 directional_phong_color(const ray& eye_to_point, const intersection_data& idata, const scene& target_scene)
@@ -191,22 +199,22 @@ namespace sandtrace
 			//For a directional light, the shadow ray is simply the negative
 			//of the light's direction.
 			auto light_vector = -dlight.direction;
-			auto shadow_ray = ray{idata.intersection_point, glm::normalize(light_vector)};
+			light_vector = glm::normalize(light_vector);
+			auto shadow_ray = ray{idata.intersection_point, light_vector};
 			if (is_blocked(shadow_ray, target_scene.primitives))
 			{
 				continue;
 			}
-			light_vector = glm::normalize(light_vector);
 
 			//Diffuse component
-			auto kd = std::max(glm::dot(light_vector, idata.normal), 0);
+			auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
 			final_color += kd * dlight.diffuse * idata.mat.diffuse;
 
 			if (kd > 0)
 			{
 				//Specular component
-				auto reflected_ray = glm::reflect(-shadow_ray, idata.normal);
-				auto ks = std::max(glm::dot(reflected_ray, -eye_to_point.direction));
+				auto reflected_ray = glm::reflect(-light_vector, idata.normal);
+				auto ks = std::max(glm::dot(reflected_ray, -eye_to_point.direction), 0.0f);
 				ks = glm::pow(ks, idata.mat.shininess);
 				final_color += ks * dlight.specular * idata.mat.specular;
 			}
@@ -225,27 +233,27 @@ namespace sandtrace
 
 			//Here the shadow ray is the ray from the point of intersection to the light.
 			auto light_vector = plight.position - idata.intersection_point;
-			auto shadow_ray = ray{idata.intersection_point, glm::normalize(light_vector)};
+			auto d = glm::length(light_vector);
+			light_vector = glm::normalize(light_vector);
+			auto shadow_ray = ray{idata.intersection_point + epsilon * light_vector, light_vector};
 			if (is_blocked(shadow_ray, target_scene.primitives, plight.position))
 			{
 				continue;
 			}
 
-			auto d = glm::length(light_vector);
-			light_vector = glm::normalize(light_vector);
 			auto attenuation_factor = 1.0f / (plight.a0 + plight.a1 * d + plight.a2 * d * d);
 
 			//Diffuse component
-			auto kd = std::max(glm::dot(light_vector, idata.normal), 0);
-			final_color += kd * dlight.diffuse * idata.mat.diffuse * attenuation_factor;
+			auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
+			final_color += kd * plight.diffuse * idata.mat.diffuse * attenuation_factor;
 
 			if (kd > 0)
 			{
 				//Specular component
 				auto ref = glm::reflect(-light_vector, idata.normal);
-				auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0);
+				auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
 				ks = glm::pow(ks, idata.mat.shininess);
-				final_color += ks * dlight.specular * idata.mat.specular * attenuation_factor;
+				final_color += ks * plight.specular * idata.mat.specular * attenuation_factor;
 			}
 		}
 
@@ -261,22 +269,24 @@ namespace sandtrace
 			final_color += slight.ambient * idata.mat.ambient;
 
 			auto light_vector = slight.position - idata.intersection_point;
-			auto shadow_ray = ray{idata.intersection_point, glm::normalize(light_vector)};
-
 			auto d = glm::length(light_vector);
 			light_vector = glm::normalize(light_vector);
+			auto shadow_ray = ray{idata.intersection_point + epsilon * light_vector, light_vector};
+
 			auto attenuation_factor = 1.0f / (slight.a0 + slight.a1 * d + slight.a2 * d * d);
-			auto intensity_factor = glm::pow(std::max(glm::dot(-light_vector, slight.direction), 0), slight.power);
+			auto intensity_factor = glm::pow(
+									std::max(glm::dot(-light_vector, slight.direction), 0.0f),
+									slight.power);
 
 			//Diffuse component
-			auto kd = std::max(glm::dot(light_vector, idata.normal), 0);
+			auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
 			final_color += kd * slight.diffuse * idata.mat.diffuse * attenuation_factor * intensity_factor;
 
 			if (kd > 0)
 			{
 				//Specular component
 				auto ref = glm::reflect(-light_vector, idata.normal);
-				auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0);
+				auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
 				ks = glm::pow(ks, idata.mat.shininess);
 				final_color += ks * slight.specular * idata.mat.specular * attenuation_factor * intensity_factor;
 			}
@@ -287,10 +297,11 @@ namespace sandtrace
 
 	bool is_blocked(const ray& r, const scene::primitive_vector& primitives)
 	{
+		auto moved_r = ray{r.origin + epsilon * r.direction, r.direction};
 		for (auto p : primitives)
 		{
-			glm::vec4 intersection;
-			if (p->try_intersects(r, intersection))
+			glm::vec3 intersection;
+			if (p->try_intersects(moved_r, intersection))
 			{
 				return true;
 			}
@@ -299,15 +310,16 @@ namespace sandtrace
 		return false;
 	}
 
-	bool is_blocked(const ray& r, const scene::primitive_vector& primitives, const glm::vec4& limit)
+	bool is_blocked(const ray& r, const scene::primitive_vector& primitives, const glm::vec3& limit)
 	{
+		auto moved_r = ray{r.origin + epsilon * r.direction, r.direction};
 		for (auto p : primitives)
 		{
-			glm::vec4 intersection;
-			if (p->try_intersects(r, intersection))
+			glm::vec3 intersection;
+			if (p->try_intersects(moved_r, intersection))
 			{
-				auto max_length = glm::length(limit - r.origin);
-				auto length = glm::length(intersection - r.origin);
+				auto max_length = glm::length(limit - moved_r.origin);
+				auto length = glm::length(intersection - moved_r.origin);
 				if (length < max_length)
 				{
 					return true;
@@ -320,14 +332,14 @@ namespace sandtrace
 
 	void save_scene(image_data img_data, std::string filename)
 	{
-		using namespace boost::gil = gil;
+		namespace gil = boost::gil;
 
-		auto target_image = gil::rgb8_image_t{img_data.render_width, image_data.render_height};
-		auto target_image_view = gil::view{target_image};
+		auto target_image = gil::rgb8_image_t{img_data.render_width, img_data.render_height};
+		auto target_image_view = gil::view(target_image);
 
 		for (int x = 0; x < target_image_view.width(); x++)
 		{
-			for (int y = 0; i < target_image_view.height(); y++)
+			for (int y = 0; y < target_image_view.height(); y++)
 			{
 				//Mapping the color values of img_data, which are floats in [0, 1],
 				//into integers in [0, 255].

@@ -16,8 +16,8 @@ namespace sandtrace
 		 * Copies the intersection point into intersection if
 		 * r intersects the primitive.
 		 */
-		virtual bool try_intersects(const ray& r, glm::vec4& intersection) = 0;
-		virtual glm::vec4 normal_at(glm::vec4 surface_point) = 0;
+		virtual bool try_intersects(const ray& r, glm::vec3& intersection) = 0;
+		virtual glm::vec3 normal_at(glm::vec3 surface_point) = 0;
 
 		material mat;
 

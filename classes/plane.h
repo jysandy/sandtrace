@@ -10,14 +10,14 @@ namespace sandtrace
 	class plane : public primitive
 	{
 	public:
-		plane(glm::vec4 point, glm::vec4 normal, material mat);
+		plane(glm::vec3 point, glm::vec3 normal, material mat);
 		virtual ~plane(){}
 
-		virtual bool try_intersects(const ray& r, glm::vec4& intersection);
-		virtual glm::vec4 normal_at(glm::vec4 surface_point);
+		virtual bool try_intersects(const ray& r, glm::vec3& intersection);
+		virtual glm::vec3 normal_at(glm::vec3 surface_point);
 
-		glm::vec4 point;
-		glm::vec4 normal;
+		glm::vec3 point;
+		glm::vec3 normal;
 	};
 }
 

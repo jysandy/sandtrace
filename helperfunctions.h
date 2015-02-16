@@ -47,8 +47,8 @@ namespace sandtrace
 	{
 		bool intersects;
 		material mat;
-		glm::vec4 intersection_point;
-		glm::vec4 normal;
+		glm::vec3 intersection_point;
+		glm::vec3 normal;
 	};
 
 	/*
@@ -84,7 +84,7 @@ namespace sandtrace
 	/*
 	 * Tests if the ray is blocked at any point between its origin and the limit.
 	 */
-	bool is_blocked(const ray& r, const scene::primitive_vector& primitives, const glm::vec4& limit);
+	bool is_blocked(const ray& r, const scene::primitive_vector& primitives, const glm::vec3& limit);
 
 	/*
 	 * Save the scene as a JPEG image.

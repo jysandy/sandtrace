@@ -8,10 +8,10 @@ namespace sandtrace
 	class ray
 	{
 	public:
-		ray(glm::vec4 origin, glm::vec4 direction);
+		ray(glm::vec3 origin, glm::vec3 direction);
 
-		glm::vec4 origin;
-		glm::vec4 direction;
+		glm::vec3 origin;
+		glm::vec3 direction;
 	};
 }
 

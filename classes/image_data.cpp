@@ -8,7 +8,7 @@ namespace sandtrace{
 	{
 		for (int i = 0; i < render_width; i++)
 		{
-			this->color_matrix.push_back(vector<glm::vec4>{render_height});
+			this->color_matrix.push_back(std::vector<glm::vec4>(render_height));
 		}
 	}
 
