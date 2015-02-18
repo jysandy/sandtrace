@@ -20,7 +20,7 @@ namespace sandtrace
 			sphere_colour,
 			glm::vec4{0.3, 0.3, 0.3, 1.0},
 			64,
-			0.15
+			0.3
 		};//Rather dull, doesn't reflect/bleed much colour
 		primitives.push_back(std::make_shared<sphere>(sphere_position, sphere_radius, sphere_mat));
 
@@ -55,7 +55,7 @@ namespace sandtrace
 			plane_colour,
 			glm::vec4{0.5, 0.5, 0.5, 1.0},
 			128,
-			0.2
+			0.3
 		};
 		primitives.push_back(std::make_shared<plane>(plane_point, plane_normal, plane_mat));
 
@@ -101,7 +101,7 @@ namespace sandtrace
 	glm::vec4 ray_traced_color(const ray& pixel_ray, const scene& target_scene)
 	{
 		const glm::vec4 empty_color{0.0, 0.0, 0.0, 1.0};
-		const int max_stack_depth = 3;
+		const int max_stack_depth = 8;
 
 		//The recursive ray-tracing is performed iteratively, using a stack.
 		struct stack_entry
@@ -192,7 +192,7 @@ namespace sandtrace
 		auto scolor = spot_phong_color(eye_to_point, intersection, target_scene);
 
 		auto final_color = dcolor + pcolor + scolor;
-		return glm::clamp(final_color, 0.0f, 1.0f);
+		return saturate(final_color);
 	}
 
 	glm::vec4 directional_phong_color(const ray& eye_to_point, const intersection_data& idata, const scene& target_scene)
@@ -202,6 +202,7 @@ namespace sandtrace
 		for (auto dlight : target_scene.directional_lights)
 		{
 			final_color += dlight.ambient * idata.mat.ambient;
+			final_color = saturate(final_color);
 
 			//For a directional light, the shadow ray is simply the negative
 			//of the light's direction.
@@ -216,12 +217,13 @@ namespace sandtrace
 			//Diffuse component
 			auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
 			final_color += kd * dlight.diffuse * idata.mat.diffuse;
-
+			final_color = saturate(final_color);
 			//Specular component
 			auto reflected_ray = glm::reflect(-light_vector, idata.normal);
 			auto ks = std::max(glm::dot(reflected_ray, -eye_to_point.direction), 0.0f);
 			ks = glm::pow(ks, idata.mat.shininess);
 			final_color += ks * dlight.specular * idata.mat.specular;
+			final_color = saturate(final_color);
 		}
 
 		return final_color;
@@ -234,6 +236,7 @@ namespace sandtrace
 		for (auto plight : target_scene.point_lights)
 		{
 			final_color += plight.ambient * idata.mat.ambient;
+			final_color = saturate(final_color);
 
 			//Here the shadow ray is the ray from the point of intersection to the light.
 			auto light_vector = plight.position - idata.intersection_point;
@@ -250,12 +253,14 @@ namespace sandtrace
 			//Diffuse component
 			auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
 			final_color += kd * plight.diffuse * idata.mat.diffuse * attenuation_factor;
+			final_color = saturate(final_color);
 
 			//Specular component
 			auto ref = glm::reflect(-light_vector, idata.normal);
 			auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
 			ks = glm::pow(ks, idata.mat.shininess);
 			final_color += ks * plight.specular * idata.mat.specular * attenuation_factor;
+			final_color = saturate(final_color);
 		}
 
 		return final_color;
@@ -268,6 +273,7 @@ namespace sandtrace
 		for (auto slight : target_scene.spot_lights)
 		{
 			final_color += slight.ambient * idata.mat.ambient;
+			final_color = saturate(final_color);
 
 			auto light_vector = slight.position - idata.intersection_point;
 			auto d = glm::length(light_vector);
@@ -282,15 +288,36 @@ namespace sandtrace
 			//Diffuse component
 			auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
 			final_color += kd * slight.diffuse * idata.mat.diffuse * attenuation_factor * intensity_factor;
+			final_color = saturate(final_color);
 
 			//Specular component
 			auto ref = glm::reflect(-light_vector, idata.normal);
 			auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
 			ks = glm::pow(ks, idata.mat.shininess);
 			final_color += ks * slight.specular * idata.mat.specular * attenuation_factor * intensity_factor;
+			final_color = saturate(final_color);
 		}
 
 		return final_color;
+	}
+
+	glm::vec4 saturate(glm::vec4 in)
+	{
+		using std::max;
+		auto greatest = max(max(in.x, in.y), in.z);
+		if (greatest > 1)
+		{
+			in.x /= greatest;
+			in.y /= greatest;
+			in.z /= greatest;
+		}
+
+		if (in.w > 1)
+		{
+			in.w = 1;
+		}
+
+		return in;
 	}
 
 	bool is_blocked(const ray& r, const scene::primitive_vector& primitives)

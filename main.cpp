@@ -56,7 +56,7 @@ int main(int argc, char** argv)
 	std::cout << hours.count() << ":" << minutes.count() << ":" << seconds.count()
 		<< ":" << milliseconds.count() << std::endl;
 
-	std::cout << "Saving to scene.jpg...";
+	std::cout << "Saving to scene.jpg..." << std::flush;
 	save_scene(im_data, "scene.jpg");
 	std::cout << "done." << std::endl;
 
