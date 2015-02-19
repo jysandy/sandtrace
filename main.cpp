@@ -1,5 +1,8 @@
 #include <chrono>
 #include <iostream>
+#include <future>
+#include <vector>
+#include <cmath>
 
 #include <boost/lexical_cast.hpp>
 
@@ -18,12 +21,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	std::cout << "Constructing scene...";
-	auto sphere_scene = build_sphere_scene();
-	std::cout << "done." << std::endl;
-
-	std::cout << "Rendering..." << std::flush;
-	auto begin_time = chrono::steady_clock::now();
 	int render_width, render_height;
 	try
 	{
@@ -36,15 +33,49 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
+	std::cout << "Constructing scene...";
+	auto sphere_scene = build_sphere_scene();
+	std::cout << "done." << std::endl;
+
+	std::cout << "Rendering..." << std::flush;
+	auto begin_time = chrono::steady_clock::now();
+
 	auto im_data = image_data{render_width, render_height};
-	for (int i = 0; i < render_width; i++)
+
+	//Divide the columns of the image among various threads, and render in parallel.
+	const int number_of_threads = 4;
+	auto futures = std::vector<std::future<void>>{};
+	auto render_task =
+	[&](int start_col, int last_col)
 	{
-		for (int j = 0; j < render_height; j++)
+		for (int i = start_col; i < last_col; i++)
 		{
-			auto pixel_ray = build_ray(sphere_scene.cam, i, j, render_width, render_height);
-			im_data(i, j) = ray_traced_color(pixel_ray, sphere_scene);
+			for (int j = 0; j < render_height; j++)
+			{
+				auto pixel_ray = build_ray(sphere_scene.cam, i, j, render_width, render_height);
+				im_data(i, j) = ray_traced_color(pixel_ray, sphere_scene);
+			}
 		}
+	};
+	int cols_per_thread = std::ceil(static_cast<float>(render_width) / number_of_threads);
+	//For each thread
+	for (int i = 0; i < number_of_threads; i++)
+	{
+		int start_col = i * cols_per_thread;
+		int end_col = start_col + cols_per_thread;
+		if (end_col + number_of_threads >= render_width)
+		{
+			//If this thread is the last, then set the end row to the last row.
+			end_col = render_width;
+		}
+		futures.push_back(std::async(std::launch::async, [=](){ render_task(start_col, end_col); }));
 	}
+
+	for (auto& f : futures)
+	{
+		f.get();
+	}
+
 	auto duration = chrono::steady_clock::now() - begin_time;
 	std::cout << "done." << std::endl;
 

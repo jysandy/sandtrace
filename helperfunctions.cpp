@@ -140,7 +140,7 @@ namespace sandtrace
 		{
 			auto entry = recursion_stack.top();
 			recursion_stack.pop();
-			final_color = entry.color + entry.reflectance * final_color;
+			final_color =saturate(entry.color + entry.reflectance * final_color);
 		}
 
 		return final_color;
