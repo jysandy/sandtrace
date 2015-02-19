@@ -34,6 +34,10 @@ namespace sandtrace
 	 * Generates a ray from the camera to the pixel at (i, j) in the image plane.
 	 */
 	 ray build_ray(const camera& cam, int i, int j, int render_width, int render_height);
+	/*
+	 * Used for thresholding in adaptive depth control.
+	 */
+	bool operator<=(const glm::vec4& left, const glm::vec4& right);
 
 	/*
 	 * Returns a traced ray's color.
