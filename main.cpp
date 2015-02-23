@@ -5,6 +5,7 @@
 #include <cmath>
 
 #include <boost/lexical_cast.hpp>
+#include <boost/program_options.hpp>
 
 #include "classes/image_data.h"
 #include "classes/scene.h"
@@ -14,23 +15,35 @@ int main(int argc, char** argv)
 {
     using namespace sandtrace;
     namespace chrono = std::chrono;
+    namespace opt = boost::program_options;
 
-    if (argc < 3)
+    opt::options_description desc("Allowed options");
+    desc.add_options()
+        ("help", "produce help message")
+        ("size,s", opt::value<int>(), "image width and height")
+        ("out,o", opt::value<std::string>()->default_value("scene.jpg"))
+        ("threads,t", opt::value<int>()->default_value(4));
+
+    opt::variables_map m;
+    opt::store(opt::parse_command_line(argc, argv, desc), m);
+    opt::notify(m);
+
+    if (m.count("help"))
     {
-        std::cout << "Usage: sandtrace <width> <height>" << std::endl;
+        std::cout << desc << std::endl;
         return 1;
     }
 
     int render_width, render_height;
-    try
+    if (m.count("size"))
     {
-        render_width = boost::lexical_cast<int>(argv[1]);
-        render_height = boost::lexical_cast<int>(argv[2]);
+        render_width = render_height = m["size"].as<int>();
     }
-    catch(const boost::bad_lexical_cast&)
+    else
     {
-        std::cout << "Invalid dimensions" << std::endl;
-        return 2;
+        std::cout << "Error: Size was not set" << std::endl;
+        std::cout << desc << std::endl;
+        return 1;
     }
 
     std::cout << "Constructing scene...";
@@ -43,7 +56,7 @@ int main(int argc, char** argv)
     auto im_data = image_data{render_width, render_height};
 
     //Divide the columns of the image among various threads, and render in parallel.
-    const int number_of_threads = 4;
+    int number_of_threads = m["threads"].as<int>();
     auto futures = std::vector<std::future<void>>{};
     auto render_task =
     [&](int start_col, int last_col)
@@ -75,7 +88,7 @@ int main(int argc, char** argv)
     {
         f.get();
     }
-	
+
     auto duration = chrono::steady_clock::now() - begin_time;
     std::cout << "done." << std::endl;
 
@@ -87,7 +100,8 @@ int main(int argc, char** argv)
     std::cout << hours.count() << ":" << minutes.count() << ":" << seconds.count()
         << ":" << milliseconds.count() << std::endl;
 
-    std::cout << "Saving to scene.jpg..." << std::flush;
+    std::string filename = m["out"].as<std::string>();
+    std::cout << "Saving to " + filename + "..."<< std::flush;
     save_scene(im_data, "scene.jpg");
     std::cout << "done." << std::endl;
 
