@@ -3,19 +3,25 @@
 
 #include <array>
 
-#include "primitive.hpp"
 #include "polygon_vertex.hpp"
+#include "ray.hpp"
 
 namespace sandtrace
 {
-    class triangle : public primitive
+    class triangle
     {
     public:
-        std::array<polygon_vertex, 3> vertices;
+        triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c);
 
-        virtual bool try_intersects(const ray& r, glm::vec3& intersection);
-        virtual glm::vec3 normal_at(glm::vec3 surface_point);
+        bool try_intersects(const ray& in_ray, glm::vec3& intersection) const;
+        polygon_vertex interpolated_point(glm::vec3 surface_point) const;
+
+        std::array<polygon_vertex, 3> vertices;
+    private:
+        float area;
     };
+
+    float triangle_area(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 }
 
 #endif
