@@ -1,4 +1,4 @@
-#include "helperfunctions.h"
+#include "helperfunctions.hpp"
 
 namespace sandtrace
 {

@@ -5,9 +5,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 
-#include "classes/image_data.h"
-#include "classes/scene.h"
-#include "helperfunctions.h"
+#include "classes/image_data.hpp"
+#include "classes/scene.hpp"
+#include "helperfunctions.hpp"
 
 int main(int argc, char** argv)
 {

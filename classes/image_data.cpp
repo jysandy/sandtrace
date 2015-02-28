@@ -1,4 +1,4 @@
-#include "image_data.h"
+#include "image_data.hpp"
 
 namespace sandtrace{
 	image_data::image_data(
