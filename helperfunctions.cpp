@@ -85,6 +85,44 @@ namespace sandtrace
         };
     }
 
+    image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
+    {
+        auto im_data = image_data{render_width, render_height};
+        auto futures = std::vector<std::future<void>>{};
+        auto render_task =
+        [&](int start_col, int last_col)
+        {
+            for (int i = start_col; i < last_col; i++)
+            {
+                for (int j = 0; j < render_height; j++)
+                {
+                    auto pixel_ray = build_ray(target_scene.cam, i, j, render_width, render_height);
+                    im_data(i, j) = ray_traced_color(pixel_ray, target_scene);
+                }
+            }
+        };
+        int cols_per_thread = std::ceil(static_cast<float>(render_width) / number_of_threads);
+        //For each thread
+        for (int i = 0; i < number_of_threads; i++)
+        {
+            int start_col = i * cols_per_thread;
+            int end_col = start_col + cols_per_thread;
+            if (end_col + number_of_threads >= render_width)
+            {
+                //If this thread is the last, then set the end row to the last row.
+                end_col = render_width;
+            }
+            futures.push_back(std::async(std::launch::async, [=](){ render_task(start_col, end_col); }));
+        }
+
+        for (auto& f : futures)
+        {
+            f.get();
+        }
+
+        return im_data;
+    }
+
     ray build_ray(const camera& cam, int i, int j, int render_width, int render_height)
     {
         auto alpha = glm::tan(cam.fov / 2.0f) * ((i - (render_width / 2.0f)) / (render_width / 2.0f) );

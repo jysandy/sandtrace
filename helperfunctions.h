@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <future>
 #include <limits>
 #include <algorithm>
 
@@ -29,6 +30,11 @@ namespace sandtrace
 	 * Builds a scene with a sphere resting on a plane surface.
 	 */
 	scene build_sphere_scene();
+
+	/*
+	 * Renders the image into an image_data.
+	 */
+	image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads);
 
 	/*
 	 * Generates a ray from the camera to the pixel at (i, j) in the image plane.
