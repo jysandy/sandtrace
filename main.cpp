@@ -19,8 +19,8 @@ int main(int argc, char** argv)
     desc.add_options()
         ("help", "produce help message")
         ("size,s", opt::value<int>(), "image width and height")
-        ("out,o", opt::value<std::string>()->default_value("scene.jpg"))
-        ("threads,t", opt::value<int>()->default_value(4));
+        ("out,o", opt::value<std::string>()->default_value("scene.jpg"), "output file")
+        ("threads,t", opt::value<int>()->default_value(4), "number of threads");
 
     opt::variables_map m;
     opt::store(opt::parse_command_line(argc, argv, desc), m);
