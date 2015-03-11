@@ -3,6 +3,7 @@
 
 #include "material.hpp"
 #include "ray.hpp"
+#include "polygon_vertex.hpp"
 
 namespace sandtrace
 {
@@ -16,8 +17,8 @@ namespace sandtrace
 		 * Copies the intersection point into intersection if
 		 * r intersects the primitive.
 		 */
-		virtual bool try_intersects(const ray& r, glm::vec3& intersection) = 0;
-		virtual glm::vec3 normal_at(glm::vec3 surface_point) = 0;
+		virtual bool try_intersects(const ray& r, glm::vec3& intersection) const = 0;
+		virtual polygon_vertex vertex_at(glm::vec3 surface_point) const = 0;
 
 		material mat;
 

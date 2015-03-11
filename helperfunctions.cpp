@@ -166,7 +166,7 @@ namespace sandtrace
         while (recursion_stack.size() < max_stack_depth + 1)
         {
             auto data = nearest_intersection(current_ray, target_scene.primitives);
-            if (!data.intersects)
+            if (!data.intersects())
             {
                 //If the ray did not intersect any primitive
                 recursion_stack.emplace(empty_color, 0.0f);
@@ -174,15 +174,15 @@ namespace sandtrace
             }
 
             auto color = phong_color(current_ray, data, target_scene);
-            recursion_stack.emplace(color, data.mat.reflectance);
+            recursion_stack.emplace(color, data.material().reflectance);
 
             if (color <= glm::vec4{0.01, 0.01, 0.01, 1.0})
             {
                 break;
             }
 
-            auto new_direction = glm::reflect(current_ray.direction, data.normal);
-            current_ray = ray{data.intersection_point, new_direction};
+            auto new_direction = glm::reflect(current_ray.direction, data.normal());
+            current_ray = ray{data.intersection_point(), new_direction};
         }
 
         glm::vec4 final_color = recursion_stack.top().color;
@@ -221,20 +221,15 @@ namespace sandtrace
             }
         }
 
-        intersection_data idata;
 
         if (!intersects)
         {
-            idata.intersects = false;
-            return idata;
+            return intersection_data();
         }
 
-        idata.intersects = true;
-        idata.mat = closest_primitive->mat;
-        idata.intersection_point = closest_intersection;
-        idata.normal = closest_primitive->normal_at(closest_intersection);
-
-        return idata;
+        return intersection_data(
+            true, closest_primitive->mat, closest_primitive->vertex_at(closest_intersection)
+        );
     }
 
     glm::vec4 phong_color(const ray& eye_to_point, const intersection_data& intersection, const scene& target_scene)
@@ -253,28 +248,28 @@ namespace sandtrace
 
         for (auto dlight : target_scene.directional_lights)
         {
-            final_color += dlight.ambient * idata.mat.ambient;
+            final_color += dlight.ambient * idata.material().ambient;
             final_color = saturate(final_color);
 
             //For a directional light, the shadow ray is simply the negative
             //of the light's direction.
             auto light_vector = -dlight.direction;
             light_vector = glm::normalize(light_vector);
-            auto shadow_ray = ray{idata.intersection_point, light_vector};
+            auto shadow_ray = ray{idata.intersection_point(), light_vector};
             if (is_blocked(shadow_ray, target_scene.primitives))
             {
                 continue;
             }
 
             //Diffuse component
-            auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
-            final_color += kd * dlight.diffuse * idata.mat.diffuse;
+            auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
+            final_color += kd * dlight.diffuse * idata.material().diffuse;
             final_color = saturate(final_color);
             //Specular component
-            auto reflected_ray = glm::reflect(-light_vector, idata.normal);
+            auto reflected_ray = glm::reflect(-light_vector, idata.normal());
             auto ks = std::max(glm::dot(reflected_ray, -eye_to_point.direction), 0.0f);
-            ks = glm::pow(ks, idata.mat.shininess);
-            final_color += ks * dlight.specular * idata.mat.specular;
+            ks = glm::pow(ks, idata.material().shininess);
+            final_color += ks * dlight.specular * idata.material().specular;
             final_color = saturate(final_color);
         }
 
@@ -287,14 +282,14 @@ namespace sandtrace
 
         for (auto plight : target_scene.point_lights)
         {
-            final_color += plight.ambient * idata.mat.ambient;
+            final_color += plight.ambient * idata.material().ambient;
             final_color = saturate(final_color);
 
             //Here the shadow ray is the ray from the point of intersection to the light.
-            auto light_vector = plight.position - idata.intersection_point;
+            auto light_vector = plight.position - idata.intersection_point();
             auto d = glm::length(light_vector);
             light_vector = glm::normalize(light_vector);
-            auto shadow_ray = ray{idata.intersection_point + epsilon * light_vector, light_vector};
+            auto shadow_ray = ray{idata.intersection_point() + epsilon * light_vector, light_vector};
             if (is_blocked(shadow_ray, target_scene.primitives, plight.position))
             {
                 continue;
@@ -303,15 +298,15 @@ namespace sandtrace
             auto attenuation_factor = 1.0f / (plight.a0 + plight.a1 * d + plight.a2 * d * d);
 
             //Diffuse component
-            auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
-            final_color += kd * plight.diffuse * idata.mat.diffuse * attenuation_factor;
+            auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
+            final_color += kd * plight.diffuse * idata.material().diffuse * attenuation_factor;
             final_color = saturate(final_color);
 
             //Specular component
-            auto ref = glm::reflect(-light_vector, idata.normal);
+            auto ref = glm::reflect(-light_vector, idata.normal());
             auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
-            ks = glm::pow(ks, idata.mat.shininess);
-            final_color += ks * plight.specular * idata.mat.specular * attenuation_factor;
+            ks = glm::pow(ks, idata.material().shininess);
+            final_color += ks * plight.specular * idata.material().specular * attenuation_factor;
             final_color = saturate(final_color);
         }
 
@@ -324,13 +319,13 @@ namespace sandtrace
 
         for (auto slight : target_scene.spot_lights)
         {
-            final_color += slight.ambient * idata.mat.ambient;
+            final_color += slight.ambient * idata.material().ambient;
             final_color = saturate(final_color);
 
-            auto light_vector = slight.position - idata.intersection_point;
+            auto light_vector = slight.position - idata.intersection_point();
             auto d = glm::length(light_vector);
             light_vector = glm::normalize(light_vector);
-            auto shadow_ray = ray{idata.intersection_point + epsilon * light_vector, light_vector};
+            auto shadow_ray = ray{idata.intersection_point() + epsilon * light_vector, light_vector};
 
             auto attenuation_factor = 1.0f / (slight.a0 + slight.a1 * d + slight.a2 * d * d);
             auto intensity_factor = glm::pow(
@@ -338,15 +333,15 @@ namespace sandtrace
                                     slight.power);
 
             //Diffuse component
-            auto kd = std::max(glm::dot(light_vector, idata.normal), 0.0f);
-            final_color += kd * slight.diffuse * idata.mat.diffuse * attenuation_factor * intensity_factor;
+            auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
+            final_color += kd * slight.diffuse * idata.material().diffuse * attenuation_factor * intensity_factor;
             final_color = saturate(final_color);
 
             //Specular component
-            auto ref = glm::reflect(-light_vector, idata.normal);
+            auto ref = glm::reflect(-light_vector, idata.normal());
             auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
-            ks = glm::pow(ks, idata.mat.shininess);
-            final_color += ks * slight.specular * idata.mat.specular * attenuation_factor * intensity_factor;
+            ks = glm::pow(ks, idata.material().shininess);
+            final_color += ks * slight.specular * idata.material().specular * attenuation_factor * intensity_factor;
             final_color = saturate(final_color);
         }
 

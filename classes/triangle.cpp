@@ -9,7 +9,7 @@ namespace sandtrace
         this->area = triangle_area(a.position, b.position, c.position);
     }
 
-    polygon_vertex triangle::interpolated_point(glm::vec3 surface_point) const
+    polygon_vertex triangle::vertex_at(glm::vec3 surface_point) const
     {
         auto area0 = triangle_area(vertices[1].position, vertices[2].position, surface_point);
         auto area1 = triangle_area(vertices[0].position, vertices[2].position, surface_point);
