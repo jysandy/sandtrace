@@ -3,7 +3,7 @@
 namespace sandtrace
 {
     //The distance moved towards the light source when computing the shadow ray.
-    const float epsilon = 0.0008f;
+    const static float epsilon = 0.0008f;
 
     scene build_sphere_scene()
     {

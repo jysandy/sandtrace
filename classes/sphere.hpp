@@ -9,18 +9,18 @@
 
 namespace sandtrace
 {
-	class sphere : public primitive
-	{
-	public:
-		sphere(glm::vec3 position, float radius, material mat);
-		virtual ~sphere(){}
+    class sphere : public primitive
+    {
+    public:
+        sphere(glm::vec3 position, float radius, material mat);
+        virtual ~sphere(){}
 
-		virtual bool try_intersects(const ray& r, glm::vec3& intersection) const;
-		virtual polygon_vertex vertex_at(glm::vec3 surface_point) const;
+        virtual bool try_intersects(const ray& r, glm::vec3& intersection) const;
+        virtual polygon_vertex vertex_at(glm::vec3 surface_point) const;
 
-		glm::vec3 position;
-		float radius;
-	};
+        glm::vec3 position;
+        float radius;
+    };
 }
 
 #endif

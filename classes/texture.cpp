@@ -1,10 +1,10 @@
-#include "texture.h"
+#include "texture.hpp"
 
 #include <cmath>
 
 namespace sandtrace
 {
-    glm::vec4 sample(glm::vec2 texcoord)
+    glm::vec4 texture::sample(glm::vec2 texcoord)
     {
         namespace gil = boost::gil;
         //Biliniear filtering
@@ -18,11 +18,11 @@ namespace sandtrace
         glm::vec4 out;
         //Retrieve rgb values.
         auto image_view = gil::view(tex_image);
-        auto pixel = image_view[x][y];
-        out.r = gil::get_color<gil::red_t>(pixel);
-        out.g = gil::get_color<gil::green_t>(pixel);
-        out.b = gil::get_color<gil::blue_t>(pixel);
-        out.a = gil::get_color<gil::alpha_t>(pixel);
+        auto pixel = image_view(x, y);
+        out.r = gil::get_color(pixel, gil::red_t());
+        out.g = gil::get_color(pixel, gil::green_t());
+        out.b = gil::get_color(pixel, gil::blue_t());
+        out.a = gil::get_color(pixel, gil::alpha_t());
 
         return out;
     }
