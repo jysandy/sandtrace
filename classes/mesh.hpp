@@ -1,7 +1,7 @@
 #ifndef __MESH_H__
 #define __MESH_H__
 
-#include <vector>
+#include <list>
 #include <string>
 
 #include "triangle.hpp"
@@ -13,9 +13,7 @@ namespace sandtrace
     {
     public:
 
-        static mesh from_fbx_file(std::string filename);
-
-        std::vector<triangle> triangles;
+        std::list<triangle> triangles;
         material mat;
     };
 }

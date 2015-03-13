@@ -1,6 +1,4 @@
 include_directories(/usr/local/include)
 file(GLOB sources *.cpp)
-list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/mesh.cpp)
-list(REMOVE_ITEM sources ${CMAKE_CURRENT_SOURCE_DIR}/texture.cpp)
 add_definitions(-std=c++14)
 add_library(classes ${sources})

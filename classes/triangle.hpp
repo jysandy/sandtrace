@@ -5,16 +5,17 @@
 
 #include "polygon_vertex.hpp"
 #include "ray.hpp"
-#include "primitive.hpp"
 
 namespace sandtrace
 {
+    //TODO: Implement try_intersects
     class triangle
     {
     public:
+        triangle(){}
         triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c);
-        virtual ~triangle(){}
-        virtual bool try_intersects(const ray& in_ray, glm::vec3& intersection) const;
+        ~triangle(){}
+        bool try_intersects(const ray& in_ray, glm::vec3& intersection) const;
         virtual polygon_vertex vertex_at(glm::vec3 surface_point) const;
 
         std::array<polygon_vertex, 3> vertices;
