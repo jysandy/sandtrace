@@ -1,8 +1,9 @@
 #ifndef __MESH_H__
 #define __MESH_H__
 
-#include <list>
 #include <string>
+#include <list>
+#include <utility>
 
 #include "triangle.hpp"
 #include "material.hpp"
@@ -13,7 +14,7 @@ namespace sandtrace
     {
     public:
 
-        std::list<triangle> triangles;
+        std::list<std::shared_ptr<triangle>> triangles;
         material mat;
     };
 }

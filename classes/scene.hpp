@@ -2,8 +2,14 @@
 #define __SANDTRACE_SCENE_H__
 
 #include <vector>
+#include <list>
 #include <memory>
+#include <stdexcept>
+#include <utility>
 
+#include <fbxsdk.h>
+
+#include "mesh.hpp"
 #include "camera.hpp"
 #include "primitive.hpp"
 #include "directional_light.hpp"
@@ -15,23 +21,33 @@
  */
 namespace sandtrace
 {
-	class scene
-	{
-	public:
-		typedef std::vector<std::shared_ptr<primitive>> primitive_vector;
+    class scene
+    {
+    public:
+        typedef std::vector<std::shared_ptr<primitive>> primitive_vector;
 
-		scene(camera c, primitive_vector p,
-			std::vector<directional_light> directional_lights,
-			std::vector<point_light> point_lights,
-			std::vector<spot_light> spot_lights
-		);
+        scene(camera c, primitive_vector p,
+            std::vector<directional_light> directional_lights,
+            std::vector<point_light> point_lights,
+            std::vector<spot_light> spot_lights
+        );
 
-		primitive_vector primitives;
-		camera cam;
-		std::vector<directional_light> directional_lights;
-		std::vector<point_light> point_lights;
-		std::vector<spot_light> spot_lights;
-	};
+        static scene from_fbx_file(std::string fbx_filename);
+        static camera default_camera();
+        static std::vector<directional_light> default_dlights();
+        static std::vector<point_light> default_plights();
+        static std::vector<spot_light> default_slights();
+
+        primitive_vector primitives;
+        std::list<mesh> meshes;
+        camera cam;
+        std::vector<directional_light> directional_lights;
+        std::vector<point_light> point_lights;
+        std::vector<spot_light> spot_lights;
+
+    private:
+        static std::list<mesh>&& extract_mesh_list(FbxNode* node);
+    };
 }
 
 #endif

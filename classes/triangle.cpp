@@ -2,8 +2,8 @@
 
 namespace sandtrace
 {
-    triangle::triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c)
-    : vertices{a, b, c}
+    triangle::triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c, std::shared_ptr<mesh> parent)
+    : vertices{a, b, c}, parent_mesh(parent)
     {
         //Area of triangle is precomputed
         this->area = triangle_area(a.position, b.position, c.position);
