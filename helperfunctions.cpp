@@ -88,7 +88,6 @@ namespace sandtrace
     image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
     {
         auto im_data = image_data{render_width, render_height};
-        auto futures = std::vector<std::future<void>>{};
         auto render_task =
         [&](int start_col, int last_col)
         {
@@ -101,6 +100,7 @@ namespace sandtrace
                 }
             }
         };
+        auto futures = std::vector<std::future<void>>{};
         int cols_per_thread = std::ceil(static_cast<float>(render_width) / number_of_threads);
         //For each thread
         for (int i = 0; i < number_of_threads; i++)
