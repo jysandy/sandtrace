@@ -9,7 +9,7 @@ namespace sandtrace
         this->area = triangle_area(a.position, b.position, c.position);
     }
 
-    polygon_vertex triangle::vertex_at(glm::vec3 surface_point) const
+    color_vertex triangle::vertex_at(glm::vec3 surface_point) const
     {
         auto area0 = triangle_area(vertices[1].position, vertices[2].position, surface_point);
         auto area1 = triangle_area(vertices[0].position, vertices[2].position, surface_point);
@@ -17,12 +17,15 @@ namespace sandtrace
         auto point_normal = (area0 * vertices[0].normal
                             + area1 * vertices[1].normal
                             + area2 * vertices[2].normal) / this->area;
-        auto point_texcoord = (area0 * vertices[0].texcoord
-                            + area1 * vertices[1].texcoord
-                            + area2 * vertices[2].texcoord) / this->area;
+        auto point_color = this->parent_mesh->tex->sample(surface_point);
         point_normal = glm::normalize(point_normal);
 
-        return polygon_vertex{surface_point, point_normal, point_texcoord};
+        return color_vertex{surface_point, point_normal, point_color};
+    }
+
+    material triangle::mat() const
+    {
+        return this->parent_mesh->mat;
     }
 
     float triangle_area(glm::vec3 a, glm::vec3 b, glm::vec3 c)

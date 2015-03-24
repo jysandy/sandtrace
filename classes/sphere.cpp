@@ -3,7 +3,7 @@
 namespace sandtrace
 {
     sphere::sphere(glm::vec3 position, float radius, material mat) :
-    primitive(mat), position(position), radius(radius)
+    mat(mat), position(position), radius(radius)
     {
     }
 
@@ -54,9 +54,18 @@ namespace sandtrace
         return true;
     }
 
-    polygon_vertex sphere::vertex_at(glm::vec3 surface_point) const
+    color_vertex sphere::vertex_at(glm::vec3 surface_point) const
     {
         //For now the texcoords are dummies
-        return polygon_vertex{surface_point, glm::normalize(surface_point - this->position), glm::vec2()};
+        return color_vertex{
+            surface_point,\
+            glm::normalize(surface_point - this->position),
+            tex.sample(texcoords_at(surface_point));
+            };
+    }
+
+    material sphere::mat() const
+    {
+        return this->mat;
     }
 }

@@ -4,18 +4,18 @@
 #include <string>
 #include <list>
 #include <utility>
+#include <memory>
 
 #include "triangle.hpp"
 #include "material.hpp"
 
 namespace sandtrace
 {
-    class mesh
+    struct mesh
     {
-    public:
-
         std::list<std::shared_ptr<triangle>> triangles;
         material mat;
+        std::shared_ptr<texture> tex;
     };
 }
 

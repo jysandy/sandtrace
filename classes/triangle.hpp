@@ -11,14 +11,15 @@
 namespace sandtrace
 {
     //TODO: Implement try_intersects
-    class triangle
+    class triangle : public primitive
     {
     public:
         triangle(){}
         triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c, std::shared_ptr<mesh> parent);
         ~triangle(){}
         bool try_intersects(const ray& in_ray, glm::vec3& intersection) const;
-        virtual polygon_vertex vertex_at(glm::vec3 surface_point) const;
+        virtual color_vertex vertex_at(glm::vec3 surface_point) const;
+        virtual material mat() const;
 
         std::array<polygon_vertex, 3> vertices;
         std::weak_ptr<mesh> parent_mesh;

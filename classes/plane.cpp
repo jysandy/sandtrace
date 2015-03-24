@@ -28,9 +28,17 @@ namespace sandtrace
         return true;
     }
 
-    polygon_vertex plane::vertex_at(glm::vec3 surface_point) const
+    color_vertex plane::vertex_at(glm::vec3 surface_point) const
     {
-        //For now the texcoords are dummies
-        return polygon_vertex{surface_point, this->normal, glm::vec2()};
+        return color_vertex{
+            surface_point,
+            this->normal,
+            tex.sample(texcoords_at(surface_point))
+            };
+    }
+
+    material plane::mat() const
+    {
+        return this->mat;
     }
 }

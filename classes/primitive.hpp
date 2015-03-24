@@ -3,14 +3,14 @@
 
 #include "material.hpp"
 #include "ray.hpp"
-#include "polygon_vertex.hpp"
+#include "color_vertex.hpp"
 
 namespace sandtrace
 {
     class primitive
     {
     public:
-        primitive(material mat);
+        primitive();
         virtual ~primitive(){}
 
         /*
@@ -18,12 +18,8 @@ namespace sandtrace
          * r intersects the primitive.
          */
         virtual bool try_intersects(const ray& r, glm::vec3& intersection) const = 0;
-        virtual polygon_vertex vertex_at(glm::vec3 surface_point) const = 0;
-
-        //TODO: Replace this with an accessor
-        material mat;
-
-
+        virtual color_vertex vertex_at(glm::vec3 surface_point) const = 0;
+        virtual material mat() = 0;
     };
 }
 
