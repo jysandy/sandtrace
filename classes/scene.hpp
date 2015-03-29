@@ -15,6 +15,7 @@
 #include "directional_light.hpp"
 #include "point_light.hpp"
 #include "spot_light.hpp"
+#include "texture_pool.hpp"
 
 /*
  * Defines a 3D scene as a camera and a collection of primitives.
@@ -26,7 +27,7 @@ namespace sandtrace
     public:
         typedef std::vector<std::shared_ptr<primitive>> primitive_vector;
 
-        static scene from_fbx_file(std::string fbx_filename);
+        static scene from_fbx_file(std::string fbx_filename, std::string texname);
         static camera default_camera();
         static std::vector<directional_light> default_dlights();
         static std::vector<point_light> default_plights();
@@ -40,8 +41,15 @@ namespace sandtrace
         std::vector<spot_light> spot_lights;
 
     private:
-        static std::list<mesh>&& extract_mesh_list(FbxNode* node);
+        //Only from_fbx_file should be able to call this
+        scene(){}
+
+        static std::list<mesh>&& build_mesh_list(FbxNode* node, std::string texname);
+
+        texture_pool texpool;
     };
+
+
 }
 
 #endif

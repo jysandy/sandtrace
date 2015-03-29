@@ -2,7 +2,12 @@
 
 namespace sandtrace
 {
-    scene scene::from_fbx_file(std::string fbx_filename)
+    //Some helper functions to make the FBX file loading look more sane
+    std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(FbxMesh*, std::shared_ptr<texture>);
+    std::array<polygon_vertex, 3> triangle_vertices_from_mesh(FbxMesh*, int polygon_index);
+    material&& material_from_node(FbxNode*);
+
+    scene scene::from_fbx_file(std::string fbx_filename, std::string texname)
     {
         FbxManager* sdk_manager = FbxManager::Create();
         FbxIOSettings* ios = FbxIOSettings::Create(sdk_manager, IOSROOT);
@@ -28,7 +33,16 @@ namespace sandtrace
         scene new_scene;
         for (int i = 0; i < root_node->GetChildCount(); i++)
         {
-            new_scene.build_mesh_list(root_node->GetChild(i)));
+            new_scene.build_mesh_list(root_node->GetChild(i), texname);
+        }
+
+        //Add the triangles to the primitive list.
+        for (auto m : new_scene.meshes)
+        {
+            for (auto t : m.triangles)
+            {
+                new_scene.primitives.push_back(t);
+            }
         }
 
         new_scene.cam = scene::default_camera();
@@ -39,7 +53,7 @@ namespace sandtrace
         return new_scene;
     }
 
-    void scene::build_mesh_list(FbxNode* node)
+    void scene::build_mesh_list(FbxNode* node, std::string texname)
     {
         FbxMesh* fbx_mesh = node->GetMesh();
 
@@ -76,100 +90,12 @@ namespace sandtrace
             }
             //END DEFENSIVE CODE
 
-            FbxAMatrix& mesh_matrix = node->EvaluateGlobalTransform();
-            glm::mat4 transform;
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    transform[j][i] = mesh_matrix.Get(i, j);    //From row-major to column-major
-                }
-            }
+            //Read the polygons.
+            auto triangle_list = triangle_list_from_mesh(fbx_mesh, texpool.get(texname));
+            //Read the material.
+            auto mat = material_from_node(node);
 
-            auto uv_set_name = uvs->GetName();
-            auto control_points = fbx_mesh->GetControlPoints();
-            auto control_indices = fbx_mesh->GetPolygonVertices();
-            auto normal_array = normals->GetDirectArray();
-            auto normal_index_array = normals->GetIndexArray();
-            auto uv_array = uvs->GetDirectArray();
-            auto uv_index_array = uvs->GetIndexArray();
-
-            auto new_mesh = std::make_shared<mesh>();
-
-            //Read the polygons
-            for (int polygon_index = 0; polygon_index < fbx_mesh->GetPolygonCount(); polygon_index++)
-            {
-                auto polygon_size = fbx_mesh->GetPolygonSize(polygon_index);
-                if (polygon_size != 3)
-                {
-                    throw std::runtime_error("Found a polygon which is not a triangle");
-                }
-
-                auto new_triangle = std::make_shared<triangle>(new_mesh);
-                for (int vertex_position = 0; vertex_position < polygon_size; vertex_position++)
-                {
-                    polygon_vertex vertex;
-
-                    auto control_point_index = fbx_mesh->GetPolygonVertex(polygon_index, vertex_position);
-                    auto control_point = control_points[control_point_index];
-                    glm::vec3 temp;
-                    for (int i = 0; i < 3; i++)
-                    {
-                        temp[i] = control_point[i];
-                    }
-                    temp = glm::vec3(transform * glm::vec4(temp, 1.0f));
-                    vertex.position = temp;
-
-                    FbxVector4 norm;
-                    fbx_mesh->GetPolygonVertexNormal(polygon_index, vertex_position, norm);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        temp[i] = control_point[i];
-                    }
-                    temp = glm::vec3(transform * glm::vec4(temp, 0.0f));
-                    vertex.normal = temp;
-
-                    FbxVector2 tex;
-                    bool mapped;
-                    fbx_mesh->GetPolygonVertexUV(polygon_index, vertex_position, uv_set_name, tex, mapped);
-                    vertex.texcoord.x = tex[0];
-                    vertex.texcoord.y = 1 - tex[1];
-
-                    new_triangle->vertices[vertex_position] = vertex;
-                }
-                this->primitives.push_back(new_triangle);
-                new_mesh->triangles.push_back(new_triangle);
-            }
-
-            //Read the material
-            auto mat = node->GetMaterial(0);
-            if (!mat)
-            {
-                throw std::runtime_error("No material found for a mesh");
-            }
-
-            if (!mat->Is<FbxSurfacePhong>())
-            {
-                throw std::runtime_error("Material found is not a Phong material");
-            }
-
-            FbxSurfacePhong* phong_surface = reinterpret_cast<FbxSurfacePhong*>(mat);
-            material foo;
-            for (int i = 0; i < 3; i++)
-            {
-                foo.ambient[i] = phong_surface->Ambient.Get()[i];
-                foo.diffuse[i] = phong_surface->Diffuse.Get()[i];
-                foo.specular[i] = phong_surface->Specular.Get()[i];
-            }
-            foo.ambient.w = 1;
-            foo.diffuse.w = 1;
-            foo.specular.w = 1;
-
-            foo.shininess = phong_surface->Shininess.Get();
-            foo.reflectance = 0;    //TODO: Get the reflectance from the FBX file if possible
-
-            new_mesh->mat = foo;
-            this->meshes.push_back(new_mesh);
+            this->meshes.emplace_back(triangle_list, mat, texpool.get(texname));
         }
 
         for (int i = 0; i < node->GetChildCount(); i++)
@@ -177,5 +103,110 @@ namespace sandtrace
             build_mesh_list(node->GetChild(i)));
         }
 
+    }
+
+    std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(FbxMesh* fbx_mesh, std::shared_ptr<texture> tex)
+    {
+        FbxNode* node = reinterpret_cast<FbxNode*>(fbx_mesh->GetDstObject());
+        FbxAMatrix& mesh_matrix = node->EvaluateGlobalTransform();
+        glm::mat4 transform;
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                transform[j][i] = mesh_matrix.Get(i, j);    //From row-major to column-major
+            }
+        }
+
+        std::list<std::shared_ptr<triangle>> ret;
+        for (int polygon_index = 0; polygon_index < fbx_mesh->GetPolygonCount(); polygon_index++)
+        {
+            auto vertices = triangle_vertices_from_mesh(fbx_mesh, polygon_index);
+
+            //Need to transform the vertices!
+            for (auto& v : vertices)
+            {
+                v.position = glm::vec3(transform * glm::vec4(v.position, 1.0f));
+                v.normal = glm::vec3(transform * glm::vec4(v.normal, 0.0f));
+            }
+
+            ret.emplace_back(std::make_shared<triangle>(
+                triangle_vertices[0], triangle_vertices[1], triangle_vertices[2], tex
+            ));
+        }
+
+        return std::move(ret);
+    }
+
+    std::array<polygon_vertex, 3> triangle_vertices_from_mesh(FbxMesh* fbx_mesh, int polygon_index)
+    {
+        auto polygon_size = fbx_mesh->GetPolygonSize(polygon_index);
+        if (polygon_size != 3)
+        {
+            throw std::runtime_error("Found a polygon which is not a triangle");
+        }
+
+        std::array<polygon_vertex, 3> ret;
+        for (int vertex_position = 0; vertex_position < polygon_size; vertex_position++)
+        {
+            polygon_vertex vertex;
+
+            auto control_points = fbx_mesh->GetControlPoints();
+            auto control_point_index = fbx_mesh->GetPolygonVertex(polygon_index, vertex_position);
+            auto control_point = control_points[control_point_index];
+            for (int i = 0; i < 3; i++)
+            {
+                vertex.position[i] = control_point[i];
+            }
+
+            FbxVector4 norm;
+            fbx_mesh->GetPolygonVertexNormal(polygon_index, vertex_position, norm);
+            for (int i = 0; i < 3; i++)
+            {
+                vertex.normal[i] = control_point[i];
+            }
+
+            FbxVector2 tex;
+            bool mapped;
+            auto uv_set_name = fbx_mesh->GetElementUV()->GetName();
+            fbx_mesh->GetPolygonVertexUV(polygon_index, vertex_position, uv_set_name, tex, mapped);
+            vertex.texcoord.x = tex[0];
+            vertex.texcoord.y = 1 - tex[1];
+
+            ret[vertex_position] = vertex;
+        }
+
+        return ret;
+    }
+
+    material&& material_from_node(FbxNode* node)
+    {
+        auto mat = node->GetMaterial(0);
+        if (!mat)
+        {
+            throw std::runtime_error("No material found for a mesh");
+        }
+
+        if (!mat->Is<FbxSurfacePhong>())
+        {
+            throw std::runtime_error("Material found is not a Phong material");
+        }
+
+        FbxSurfacePhong* phong_surface = reinterpret_cast<FbxSurfacePhong*>(mat);
+
+        glm::vec4 ambient, diffuse, specular;
+        ambient.w = diffuse.w = specular.w = 1;
+        for (int i = 0; i < 3; i++)
+        {
+            ambient[i] = phong_surface->Ambient.Get()[i];
+            diffuse[i] = phong_surface->Diffuse.Get()[i];
+            specular[i] = phong_surface->Specular.Get()[i];
+        }
+
+        return material(
+            ambient, diffuse, specular,
+            phong_surface->Shininess.Get(),
+            0   //TODO: Get the reflectance from the FBX file if possible
+        );
     }
 }
