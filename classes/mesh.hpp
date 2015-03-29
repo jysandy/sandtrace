@@ -11,8 +11,14 @@
 
 namespace sandtrace
 {
-    struct mesh
+    class mesh
     {
+    public:
+        mesh(std::list<std::shared_ptr<triangle>> t, material m, std::shared_ptr<texture> tx) :
+        triangles(t), mat(m), tex(tx)
+        {
+        }
+
         std::list<std::shared_ptr<triangle>> triangles;
         material mat;
         std::shared_ptr<texture> tex;

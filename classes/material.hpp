@@ -5,24 +5,22 @@
 
 namespace sandtrace
 {
-	class material
-	{
-	public:
-		material();
+    class material
+    {
+    public:
+        material(glm::vec4 ambient,
+                 glm::vec4 diffuse,
+                 glm::vec4 specular,
+                 float shininess,
+                 float reflectance
+                );
 
-		material(glm::vec4 diffuse,
-				 glm::vec4 ambient,
-				 glm::vec4 specular,
-				 float shininess,
-				 float reflectance
-				);
-
-		glm::vec4 diffuse;
-		glm::vec4 ambient;
-		glm::vec4 specular;
-		float shininess;
-		float reflectance;
-	};
+        glm::vec4 diffuse;
+        glm::vec4 ambient;
+        glm::vec4 specular;
+        float shininess;
+        float reflectance;
+    };
 }
 
 #endif
