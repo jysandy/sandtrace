@@ -7,6 +7,7 @@
 #include "polygon_vertex.hpp"
 #include "ray.hpp"
 #include "mesh.hpp"
+#include "texture.hpp"
 
 namespace sandtrace
 {
@@ -14,7 +15,6 @@ namespace sandtrace
     class triangle : public primitive
     {
     public:
-        triangle(){}
         triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c, std::shared_ptr<mesh> parent);
         ~triangle(){}
         bool try_intersects(const ray& in_ray, glm::vec3& intersection) const;
@@ -22,7 +22,7 @@ namespace sandtrace
         virtual material mat() const;
 
         std::array<polygon_vertex, 3> vertices;
-        std::weak_ptr<mesh> parent_mesh;
+        std::shared_ptr<texture> tex;
 
     private:
         float area;

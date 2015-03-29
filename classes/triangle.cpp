@@ -2,8 +2,8 @@
 
 namespace sandtrace
 {
-    triangle::triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c, std::shared_ptr<mesh> parent)
-    : vertices{a, b, c}, parent_mesh(parent)
+    triangle::triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c, std::shared_ptr<texture> tx)
+    : vertices{a, b, c}, tex(tx)
     {
         //Area of triangle is precomputed
         this->area = triangle_area(a.position, b.position, c.position);
@@ -17,7 +17,7 @@ namespace sandtrace
         auto point_normal = (area0 * vertices[0].normal
                             + area1 * vertices[1].normal
                             + area2 * vertices[2].normal) / this->area;
-        auto point_color = this->parent_mesh->tex->sample(surface_point);
+        auto point_color = this->tex->sample(surface_point);
         point_normal = glm::normalize(point_normal);
 
         return color_vertex{surface_point, point_normal, point_color};
