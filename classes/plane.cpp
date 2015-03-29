@@ -2,8 +2,8 @@
 
 namespace sandtrace
 {
-    plane::plane(glm::vec3 point, glm::vec3 normal, material mat) :
-    primitive(mat), point(point), normal(glm::normalize(normal))
+    plane::plane(glm::vec3 point, glm::vec3 normal, material mat, std::string texname) :
+    primitive(mat), point(point), normal(glm::normalize(normal)), tex(texname)
     {
     }
 
@@ -40,5 +40,11 @@ namespace sandtrace
     material plane::mat() const
     {
         return this->mat;
+    }
+
+    glm::vec2 plane::texcoords_at(glm::vec3 surface_point)
+    {
+        //TODO: This is a dummy. Replace with the real implementation.
+        return glm::vec2(0, 0)
     }
 }
