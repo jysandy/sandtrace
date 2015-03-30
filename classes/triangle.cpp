@@ -2,8 +2,9 @@
 
 namespace sandtrace
 {
-    triangle::triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c, std::shared_ptr<texture> tx)
-    : vertices{a, b, c}, tex(tx)
+    triangle::triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c,
+        std::shared_ptr<texture> tx, std::shared_ptr<material> m)
+    : vertices{a, b, c}, tex(tx), mat_(m)
     {
         //Area of triangle is precomputed
         this->area = triangle_area(a.position, b.position, c.position);
@@ -17,7 +18,10 @@ namespace sandtrace
         auto point_normal = (area0 * vertices[0].normal
                             + area1 * vertices[1].normal
                             + area2 * vertices[2].normal) / this->area;
-        auto point_color = this->tex->sample(surface_point);
+        auto point_texcoord = (area0 * vertices[0].texcoord
+                              + area1 * vertices[1].texcoord
+                              + area2 * vertices[2].texcoord) / this->area;
+        auto point_color = this->tex->sample(point_texcoord);
         point_normal = glm::normalize(point_normal);
 
         return color_vertex{surface_point, point_normal, point_color};
@@ -25,7 +29,7 @@ namespace sandtrace
 
     material triangle::mat() const
     {
-        return this->parent_mesh->mat;
+        return *(this->mat_);
     }
 
     float triangle_area(glm::vec3 a, glm::vec3 b, glm::vec3 c)

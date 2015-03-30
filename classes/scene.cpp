@@ -20,11 +20,11 @@ namespace sandtrace
             throw std::runtime_error(importer->GetStatus().GetErrorString());
         }
 
-        FbxScene* scene = FbxScene::Create(sdk_manager, "Scene");
-        importer->Import(scene);
+        FbxScene* fbx_scene = FbxScene::Create(sdk_manager, "Scene");
+        importer->Import(fbx_scene);
         importer->Destroy();
 
-        FbxNode* root_node = scene->GetRootNode();
+        FbxNode* root_node = fbx_scene->GetRootNode();
         if (!root_node)
         {
             throw std::runtime_error("Empty file: No mesh present");
@@ -100,7 +100,7 @@ namespace sandtrace
 
         for (int i = 0; i < node->GetChildCount(); i++)
         {
-            build_mesh_list(node->GetChild(i)));
+            build_mesh_list(node->GetChild(i), texname);
         }
 
     }
@@ -131,7 +131,7 @@ namespace sandtrace
             }
 
             ret.emplace_back(std::make_shared<triangle>(
-                triangle_vertices[0], triangle_vertices[1], triangle_vertices[2], tex
+                vertices[0], vertices[1], vertices[2], tex
             ));
         }
 
@@ -203,10 +203,10 @@ namespace sandtrace
             specular[i] = phong_surface->Specular.Get()[i];
         }
 
-        return material(
+        return std::move(material(
             ambient, diffuse, specular,
             phong_surface->Shininess.Get(),
             0   //TODO: Get the reflectance from the FBX file if possible
-        );
+        ));
     }
 }

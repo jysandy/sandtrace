@@ -10,7 +10,6 @@ namespace sandtrace
     class primitive
     {
     public:
-        primitive();
         virtual ~primitive(){}
 
         /*

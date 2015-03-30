@@ -5,6 +5,7 @@
 
 #include <glm/glm.hpp>
 #include <boost/gil/gil_all.hpp>
+#include <boost/gil/extension/io/jpeg_dynamic_io.hpp>
 
 namespace sandtrace
 {
@@ -13,7 +14,7 @@ namespace sandtrace
     public:
         texture(std::string filename);
 
-        glm::vec4 sample(glm::vec2 texcoord);
+        glm::vec4 sample(glm::vec2 texcoord) const;
 
     private:
         boost::gil::rgba8_image_t tex_image;

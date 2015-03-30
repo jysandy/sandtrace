@@ -2,8 +2,8 @@
 
 namespace sandtrace
 {
-    sphere::sphere(glm::vec3 position, float radius, material mat, std::string texname) :
-    mat(mat), position(position), radius(radius), tex(texname)
+    sphere::sphere(glm::vec3 position, float radius, material m, std::string texname) :
+    mat_(m), position(position), radius(radius), tex(texname)
     {
     }
 
@@ -59,20 +59,20 @@ namespace sandtrace
         return color_vertex{
             surface_point,
             this->normal_at(surface_point),
-            tex.sample(texcoords_at(surface_point));
+            tex.sample(texcoords_at(surface_point))
             };
     }
 
     material sphere::mat() const
     {
-        return this->mat;
+        return this->mat_;
     }
 
     glm::vec2 sphere::texcoords_at(glm::vec3 surface_point) const
     {
         auto n = this->normal_at(surface_point);
-        auto u = std::asin(n.x) / glm::pi() + 0.5f;
-        auto v = std::asin(n.y) / glm::pi() + 0.5f;
+        auto u = std::asin(n.x) / glm::pi<float>() + 0.5f;
+        auto v = std::asin(n.y) / glm::pi<float>() + 0.5f;
 
         return glm::vec2(u, v);
     }

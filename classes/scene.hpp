@@ -42,7 +42,8 @@ namespace sandtrace
 
     private:
         //Only from_fbx_file should be able to call this
-        scene(){}
+        scene() : cam(scene::default_camera())
+        {}
 
         static std::list<mesh>&& build_mesh_list(FbxNode* node, std::string texname);
 

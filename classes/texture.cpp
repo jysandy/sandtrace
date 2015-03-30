@@ -4,10 +4,10 @@
 
 namespace sandtrace
 {
-    glm::vec4 texture::sample(glm::vec2 texcoord)
+    glm::vec4 texture::sample(glm::vec2 texcoord) const
     {
         namespace gil = boost::gil;
-        //Biliniear filtering
+        //Point filtering
         int x = static_cast<int>(std::round(texcoord.x * tex_image.width()));
         int y = static_cast<int>(std::round(texcoord.y * tex_image.height()));
 
@@ -15,10 +15,10 @@ namespace sandtrace
         x = mod(x, tex_image.width());
         y = mod(y, tex_image.height());
 
-        glm::vec4 out;
         //Retrieve rgb values.
-        auto image_view = gil::view(tex_image);
+        auto image_view = gil::const_view(tex_image);
         auto pixel = image_view(x, y);
+        glm::vec4 out;
         out.r = gil::get_color(pixel, gil::red_t());
         out.g = gil::get_color(pixel, gil::green_t());
         out.b = gil::get_color(pixel, gil::blue_t());
