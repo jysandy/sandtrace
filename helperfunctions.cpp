@@ -228,7 +228,7 @@ namespace sandtrace
         }
 
         return intersection_data(
-            true, closest_primitive->mat, closest_primitive->vertex_at(closest_intersection)
+            true, closest_primitive->mat(), closest_primitive->vertex_at(closest_intersection)
         );
     }
 
@@ -248,7 +248,7 @@ namespace sandtrace
 
         for (auto dlight : target_scene.directional_lights)
         {
-            final_color += dlight.ambient * idata.material().ambient;
+            final_color += idata.color() * dlight.ambient * idata.material().ambient;
             final_color = saturate(final_color);
 
             //For a directional light, the shadow ray is simply the negative
@@ -263,7 +263,7 @@ namespace sandtrace
 
             //Diffuse component
             auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
-            final_color += kd * dlight.diffuse * idata.material().diffuse;
+            final_color += idata.color() * kd * dlight.diffuse * idata.material().diffuse;
             final_color = saturate(final_color);
             //Specular component
             auto reflected_ray = glm::reflect(-light_vector, idata.normal());
@@ -282,7 +282,7 @@ namespace sandtrace
 
         for (auto plight : target_scene.point_lights)
         {
-            final_color += plight.ambient * idata.material().ambient;
+            final_color += idata.color() * plight.ambient * idata.material().ambient;
             final_color = saturate(final_color);
 
             //Here the shadow ray is the ray from the point of intersection to the light.
@@ -299,7 +299,7 @@ namespace sandtrace
 
             //Diffuse component
             auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
-            final_color += kd * plight.diffuse * idata.material().diffuse * attenuation_factor;
+            final_color += idata.color() * kd * plight.diffuse * idata.material().diffuse * attenuation_factor;
             final_color = saturate(final_color);
 
             //Specular component
@@ -319,7 +319,7 @@ namespace sandtrace
 
         for (auto slight : target_scene.spot_lights)
         {
-            final_color += slight.ambient * idata.material().ambient;
+            final_color += idata.color() * slight.ambient * idata.material().ambient;
             final_color = saturate(final_color);
 
             auto light_vector = slight.position - idata.intersection_point();
@@ -334,7 +334,7 @@ namespace sandtrace
 
             //Diffuse component
             auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
-            final_color += kd * slight.diffuse * idata.material().diffuse * attenuation_factor * intensity_factor;
+            final_color += idata.color() * kd * slight.diffuse * idata.material().diffuse * attenuation_factor * intensity_factor;
             final_color = saturate(final_color);
 
             //Specular component

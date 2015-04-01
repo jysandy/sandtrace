@@ -58,12 +58,12 @@ namespace sandtrace
     {
         bool _intersects;
         material _mat;
-        polygon_vertex _vertex;
+        color_vertex _vertex;
 
     public:
 		intersection_data() : _intersects(false) {}
 
-        intersection_data(bool i, material m, polygon_vertex ver)
+        intersection_data(bool i, material m, color_vertex ver)
         : _intersects(i), _mat(m), _vertex(ver)
         {
         }
@@ -72,7 +72,7 @@ namespace sandtrace
         const material& material() const { return _mat; }
         const glm::vec3& intersection_point() const { return _vertex.position; }
         const glm::vec3& normal() const { return _vertex.normal; }
-        const glm::vec2& texcoord() const { return _vertex.texcoord; }
+        const glm::vec2& color() const { return _vertex.color; }
     };
 
     /*
