@@ -1,4 +1,6 @@
 include_directories(/usr/local/include)
 file(GLOB sources *.cpp)
+find_library(LIBIMAGES png)
 add_definitions(-std=c++14)
 add_library(classes ${sources})
+target_link_libraries(classes ${LIBIMAGES})

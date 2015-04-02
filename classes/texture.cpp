@@ -4,19 +4,25 @@
 
 namespace sandtrace
 {
+    texture::texture(std::string filename)
+    {
+        namespace gil = boost::gil;
+        gil::png_read_image(filename, tex_image_);
+    }
+
     glm::vec4 texture::sample(glm::vec2 texcoord) const
     {
         namespace gil = boost::gil;
         //Point filtering
-        int x = static_cast<int>(std::round(texcoord.x * tex_image.width()));
-        int y = static_cast<int>(std::round(texcoord.y * tex_image.height()));
+        int x = static_cast<int>(std::round(texcoord.x * tex_image_.width()));
+        int y = static_cast<int>(std::round(texcoord.y * tex_image_.height()));
 
         //Wrap the texture coordinates.
-        x = mod(x, tex_image.width());
-        y = mod(y, tex_image.height());
+        x = mod(x, tex_image_.width());
+        y = mod(y, tex_image_.height());
 
         //Retrieve rgb values.
-        auto image_view = gil::const_view(tex_image);
+        auto image_view = gil::const_view(tex_image_);
         auto pixel = image_view(x, y);
         glm::vec4 out;
         out.r = gil::get_color(pixel, gil::red_t());
