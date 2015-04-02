@@ -3,7 +3,8 @@
 namespace sandtrace
 {
     //Some helper functions to make the FBX file loading look more sane
-    std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(FbxMesh*, std::shared_ptr<texture>);
+    std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(
+        FbxMesh*, std::shared_ptr<texture>, std::shared_ptr<material>);
     std::array<polygon_vertex, 3> triangle_vertices_from_mesh(FbxMesh*, int polygon_index);
     material&& material_from_node(FbxNode*);
 
@@ -90,10 +91,11 @@ namespace sandtrace
             }
             //END DEFENSIVE CODE
 
-            //Read the polygons.
-            auto triangle_list = triangle_list_from_mesh(fbx_mesh, texpool.get(texname));
             //Read the material.
             auto mat = material_from_node(node);
+
+            //Read the polygons.
+            auto triangle_list = triangle_list_from_mesh(fbx_mesh, texpool.get(texname), std::make_shared<material>(mat));
 
             this->meshes.emplace_back(triangle_list, mat, texpool.get(texname));
         }
@@ -105,7 +107,8 @@ namespace sandtrace
 
     }
 
-    std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(FbxMesh* fbx_mesh, std::shared_ptr<texture> tex)
+    std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(
+        FbxMesh* fbx_mesh, std::shared_ptr<texture> tex, std::shared_ptr<material> mat)
     {
         FbxNode* node = reinterpret_cast<FbxNode*>(fbx_mesh->GetDstObject());
         FbxAMatrix& mesh_matrix = node->EvaluateGlobalTransform();
@@ -131,7 +134,7 @@ namespace sandtrace
             }
 
             ret.emplace_back(std::make_shared<triangle>(
-                vertices[0], vertices[1], vertices[2], tex
+                vertices[0], vertices[1], vertices[2], tex, mat
             ));
         }
 

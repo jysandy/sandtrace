@@ -45,7 +45,7 @@ namespace sandtrace
         scene() : cam(scene::default_camera())
         {}
 
-        static std::list<mesh>&& build_mesh_list(FbxNode* node, std::string texname);
+        void build_mesh_list(FbxNode* node, std::string texname);
 
         texture_pool texpool;
     };

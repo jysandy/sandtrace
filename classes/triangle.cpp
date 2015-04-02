@@ -10,7 +10,7 @@ namespace sandtrace
         this->area = triangle_area(a.position, b.position, c.position);
     }
 
-    bool triangle::try_intersects(const ray& in_ray, glm::vec3& intersection)
+    bool triangle::try_intersects(const ray& in_ray, glm::vec3& intersection) const
     {
         //Implements the Möller–Trumbore ray-triangle intersection algorithm,
         //as described at http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm

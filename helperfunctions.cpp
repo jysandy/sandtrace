@@ -5,6 +5,7 @@ namespace sandtrace
     //The distance moved towards the light source when computing the shadow ray.
     const static float epsilon = 0.0008f;
 
+    /*
     scene build_sphere_scene()
     {
         auto primitives = scene::primitive_vector{};
@@ -84,7 +85,8 @@ namespace sandtrace
             std::vector<spot_light>{}
         };
     }
-
+    */
+    
     image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
     {
         auto im_data = image_data{render_width, render_height};

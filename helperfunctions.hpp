@@ -30,7 +30,7 @@ namespace sandtrace
     /*
      * Builds a scene with a sphere resting on a plane surface.
      */
-    scene build_sphere_scene();
+    //scene build_sphere_scene();
 
     /*
      * Renders the image into an image_data.
@@ -56,23 +56,27 @@ namespace sandtrace
      */
     class intersection_data
     {
-        bool _intersects;
-        material _mat;
-        color_vertex _vertex;
+        bool intersects_;
+        material mat_;
+        color_vertex vertex_;
 
     public:
-		intersection_data() : _intersects(false) {}
+        intersection_data() : intersects_(false),
+        mat_(
+            glm::vec4(), glm::vec4(), glm::vec4(), 0.0f, 0.0f
+        )
+        {}
 
         intersection_data(bool i, material m, color_vertex ver)
-        : _intersects(i), _mat(m), _vertex(ver)
+        : intersects_(i), mat_(m), vertex_(ver)
         {
         }
 
-		const bool& intersects() const {return _intersects; }
-        const material& material() const { return _mat; }
-        const glm::vec3& intersection_point() const { return _vertex.position; }
-        const glm::vec3& normal() const { return _vertex.normal; }
-        const glm::vec2& color() const { return _vertex.color; }
+        const bool& intersects() const {return intersects_; }
+        const material& material() const { return mat_; }
+        const glm::vec3& intersection_point() const { return vertex_.position; }
+        const glm::vec3& normal() const { return vertex_.normal; }
+        const glm::vec4& color() const { return vertex_.color; }
     };
 
     /*

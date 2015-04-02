@@ -18,7 +18,7 @@ namespace sandtrace
          */
         virtual bool try_intersects(const ray& r, glm::vec3& intersection) const = 0;
         virtual color_vertex vertex_at(glm::vec3 surface_point) const = 0;
-        virtual material mat() = 0;
+        virtual material mat() const = 0;
     };
 }
 
