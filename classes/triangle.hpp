@@ -3,6 +3,7 @@
 
 #include <array>
 #include <memory>
+#include <cmath>
 
 #include "polygon_vertex.hpp"
 #include "ray.hpp"
@@ -23,8 +24,8 @@ namespace sandtrace
         virtual color_vertex vertex_at(glm::vec3 surface_point) const;
         virtual material mat() const;
 
-        std::array<polygon_vertex, 3> vertices;
-        std::shared_ptr<texture> tex;
+        std::array<polygon_vertex, 3> vertices_;
+        std::shared_ptr<texture> tex_;
         std::shared_ptr<material> mat_;
     private:
         float area;
