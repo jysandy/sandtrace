@@ -20,7 +20,9 @@ int main(int argc, char** argv)
         ("help", "produce help message")
         ("size,s", opt::value<int>(), "image width and height")
         ("out,o", opt::value<std::string>()->default_value("scene.jpg"), "output file")
-        ("threads,t", opt::value<int>()->default_value(4), "number of threads");
+        ("threads,t", opt::value<int>()->default_value(4), "number of threads")
+        ("fbx", opt::value<std::string>(), "FBX input file")
+        ("tex", opt::value<std::string>(), "Texture input file");
 
     opt::variables_map m;
     opt::store(opt::parse_command_line(argc, argv, desc), m);
@@ -44,15 +46,27 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    std::string fbx_filename, tex_filename;
+    if (m.count("fbx") && m.count("tex"))
+    {
+        fbx_filename = m["fbx"].as<std::string>();
+        tex_filename = m["tex"].as<std::string>();
+    }
+    else
+    {
+        std::cout << desc << std::endl;
+        return 1;
+    }
+
     std::cout << "Constructing scene...";
-    auto sphere_scene = build_sphere_scene();
+    auto render_scene = scene::from_fbx_file(fbx_filename, tex_filename);
     std::cout << "done." << std::endl;
 
     int number_of_threads = m["threads"].as<int>();
     std::cout << "Rendering..." << std::flush;
     auto begin_time = chrono::steady_clock::now();
     //Render!!
-    auto im_data = render_image(render_width, render_height, sphere_scene, number_of_threads);
+    auto im_data = render_image(render_width, render_height, render_scene, number_of_threads);
     auto duration = chrono::steady_clock::now() - begin_time;
     std::cout << "done." << std::endl;
 
