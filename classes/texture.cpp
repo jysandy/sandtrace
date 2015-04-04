@@ -28,7 +28,8 @@ namespace sandtrace
         out.r = gil::get_color(pixel, gil::red_t());
         out.g = gil::get_color(pixel, gil::green_t());
         out.b = gil::get_color(pixel, gil::blue_t());
-        out.a = gil::get_color(pixel, gil::alpha_t());
+        //out.a = gil::get_color(pixel, gil::alpha_t());
+        out.a = 1.0f;
 
         return out;
     }

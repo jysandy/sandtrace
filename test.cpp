@@ -9,7 +9,7 @@
 
 const float tolerance = 0.0008f;
 
-
+/*
 BOOST_AUTO_TEST_CASE(sphere_intersection)
 {
     auto dummy_sphere = sandtrace::sphere(glm::vec3(0, 0, 0), 2.0f, sandtrace::material());
@@ -47,3 +47,4 @@ BOOST_AUTO_TEST_CASE(plane_intersection)
     auto hit_ray = sandtrace::ray(glm::vec3(2, 1, 1), glm::vec3(4, -3, 2));
     BOOST_CHECK(dummy_plane.try_intersects(hit_ray, intersection_point));
 }
+*/

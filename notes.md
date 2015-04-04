@@ -1,7 +1,10 @@
 This file is here for me to note down things about the project's design and so forth. I jot down my thoughts here. It helps me keep myself organized, since I often have to take breaks from working on sandtrace due to college/other commitments.
 
-####Default scene parameters
-Need to come up with sensible defaults for a scene's camera and lights.
+####Unit tests
+Many tests are pending for all the new code. Especially try_intersects for the triangle.
+
+####Reading textures
+As of now I can only load PNG textures. I should switch on the file extension and call the appropriate GIL function to load instead.
 
 ####Texcoord generation for planes
 Need to implement texcoords generation for planes. Since plane texcoords need to be tiled, this involves moving the plane to coincide with the XZ plane and then generating the texcoords using the X and Z coordinates of the surface point.

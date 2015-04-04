@@ -17,7 +17,7 @@ namespace sandtrace
         glm::vec4 sample(glm::vec2 texcoord) const;
 
     private:
-        boost::gil::rgba8_image_t tex_image_;
+        boost::gil::rgb8_image_t tex_image_;
     };
 
     int mod(int x, int n);

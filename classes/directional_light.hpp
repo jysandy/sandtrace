@@ -5,20 +5,23 @@
 
 namespace sandtrace
 {
-	class directional_light
-	{
-	public:
-		directional_light(
-			glm::vec4 ambient,
-			glm::vec4 diffuse,
-			glm::vec4 specular,
-			glm::vec3 direction);
+    class directional_light
+    {
+    public:
+        directional_light(
+            glm::vec4 ambient,
+            glm::vec4 diffuse,
+            glm::vec4 specular,
+            glm::vec3 direction) :
+            ambient(ambient), diffuse(diffuse), specular(specular), direction(glm::normalize(direction))
+        {
+        }
 
-		glm::vec4 ambient;
-		glm::vec4 diffuse;
-		glm::vec4 specular;
-		glm::vec3 direction;
-	};
+        glm::vec4 ambient;
+        glm::vec4 diffuse;
+        glm::vec4 specular;
+        glm::vec3 direction;
+    };
 }
 
 #endif

@@ -58,7 +58,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    std::cout << "Constructing scene...";
+    std::cout << "Constructing scene..." << std::flush;
     auto render_scene = scene::from_fbx_file(fbx_filename, tex_filename);
     std::cout << "done." << std::endl;
 
