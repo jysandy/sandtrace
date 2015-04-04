@@ -1,12 +1,13 @@
 #include "scene.hpp"
+#include <iostream>
 
 namespace sandtrace
 {
     //Some helper functions to make the FBX file loading look more sane
     std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(
-        FbxMesh*, std::shared_ptr<texture>, std::shared_ptr<material>);
+        FbxNode*, FbxMesh*, std::shared_ptr<texture>, std::shared_ptr<material>);
     std::array<polygon_vertex, 3> triangle_vertices_from_mesh(FbxMesh*, int polygon_index);
-    material&& material_from_node(FbxNode*);
+    material material_from_node(FbxNode*);
 
     scene scene::from_fbx_file(std::string fbx_filename, std::string texname)
     {
@@ -50,6 +51,8 @@ namespace sandtrace
         new_scene.directional_lights = scene::default_dlights();
         new_scene.point_lights = scene::default_plights();
         new_scene.spot_lights = scene::default_slights();
+
+        sdk_manager->Destroy();
 
         return new_scene;
     }
@@ -95,7 +98,7 @@ namespace sandtrace
             auto mat = material_from_node(node);
 
             //Read the polygons.
-            auto triangle_list = triangle_list_from_mesh(fbx_mesh, texpool.get(texname), std::make_shared<material>(mat));
+            auto triangle_list = triangle_list_from_mesh(node, fbx_mesh, texpool.get(texname), std::make_shared<material>(mat));
 
             this->meshes.emplace_back(triangle_list, mat, texpool.get(texname));
         }
@@ -108,9 +111,8 @@ namespace sandtrace
     }
 
     std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(
-        FbxMesh* fbx_mesh, std::shared_ptr<texture> tex, std::shared_ptr<material> mat)
+        FbxNode* node, FbxMesh* fbx_mesh, std::shared_ptr<texture> tex, std::shared_ptr<material> mat)
     {
-        FbxNode* node = reinterpret_cast<FbxNode*>(fbx_mesh->GetDstObject());
         FbxAMatrix& mesh_matrix = node->EvaluateGlobalTransform();
         glm::mat4 transform;
         for (int i = 0; i < 4; i++)
@@ -120,6 +122,7 @@ namespace sandtrace
                 transform[j][i] = mesh_matrix.Get(i, j);    //From row-major to column-major
             }
         }
+        transform = glm::mat4(1.0f);
 
         std::list<std::shared_ptr<triangle>> ret;
         for (int polygon_index = 0; polygon_index < fbx_mesh->GetPolygonCount(); polygon_index++)
@@ -182,7 +185,7 @@ namespace sandtrace
         return ret;
     }
 
-    material&& material_from_node(FbxNode* node)
+    material material_from_node(FbxNode* node)
     {
         auto mat = node->GetMaterial(0);
         if (!mat)
@@ -212,4 +215,44 @@ namespace sandtrace
             0   //TODO: Get the reflectance from the FBX file if possible
         ));
     }
+
+    camera scene::default_camera()
+    {
+        auto look_from = glm::vec3(0.0f, 10.0f, 0.0f);
+        auto look_at = glm::vec3(0.0f, 0.0f, 0.0f);
+        auto up = glm::vec3(0, 1, 0);
+        auto fov = glm::half_pi<float>();
+
+        return camera(look_from, look_at, up, fov);
+    }
+
+    std::vector<directional_light> scene::default_dlights()
+    {
+        //Two directional lights.
+
+        auto ambient = glm::vec4(0.1, 0.1, 0.1, 1.0);
+        auto diffuse = glm::vec4(0.7, 0.7, 0.7, 1.0);
+        auto specular = glm::vec4(0.2, 0.2, 0.2, 1.0);
+
+        auto direction1 = glm::vec3(1, -1, 1);
+        auto direction2 = glm::vec3(-1, -1, -1);
+
+        return std::vector<directional_light>{
+            {ambient, diffuse, specular, direction1},
+            {ambient, diffuse, specular, direction2}
+        };
+    }
+
+    std::vector<point_light> scene::default_plights()
+    {
+        //No point lights.
+        return std::vector<point_light>();
+    }
+
+    std::vector<spot_light> scene::default_slights()
+    {
+        //No spot lights.
+        return std::vector<spot_light>();
+    }
+
 }

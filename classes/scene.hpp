@@ -8,6 +8,8 @@
 #include <utility>
 
 #include <fbxsdk.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include "mesh.hpp"
 #include "camera.hpp"
