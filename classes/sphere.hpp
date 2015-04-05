@@ -1,6 +1,11 @@
 #ifndef __SPHERE_H__
 #define __SPHERE_H__
 
+#include <cmath>
+#include <algorithm>
+#include <string>
+#include <memory>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
@@ -8,16 +13,13 @@
 #include "texture.hpp"
 #include "material.hpp"
 
-#include <cmath>
-#include <algorithm>
-#include <string>
 
 namespace sandtrace
 {
     class sphere : public primitive
     {
     public:
-        sphere(glm::vec3 position, float radius, material m, std::string texname);
+        sphere(glm::vec3 position, float radius, material m, std::shared_ptr<texture> tx);
         virtual ~sphere(){}
 
         virtual bool try_intersects(const ray& r, glm::vec3& intersection) const;
@@ -27,7 +29,7 @@ namespace sandtrace
         glm::vec3 position;
         float radius;
         material mat_;
-        texture tex;
+        std::shared_ptr<texture> tex;
 
     private:
         glm::vec2 texcoords_at(glm::vec3 surface_point) const;

@@ -8,7 +8,7 @@ namespace sandtrace
 
         if (it == this->tex_map.end())
         {
-            auto ret = std::make_shared<texture>(texname);
+            auto ret = std::make_shared<image_texture>(texname);
             this->tex_map.insert(std::make_pair(texname, ret));
             return ret;
         }

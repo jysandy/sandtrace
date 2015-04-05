@@ -2,8 +2,8 @@
 
 namespace sandtrace
 {
-    sphere::sphere(glm::vec3 position, float radius, material m, std::string texname) :
-    mat_(m), position(position), radius(radius), tex(texname)
+    sphere::sphere(glm::vec3 position, float radius, material m, std::shared_ptr<texture> tx) :
+    mat_(m), position(position), radius(radius), tex(tx)
     {
     }
 
@@ -59,7 +59,7 @@ namespace sandtrace
         return color_vertex{
             surface_point,
             this->normal_at(surface_point),
-            tex.sample(texcoords_at(surface_point))
+            tex->sample(texcoords_at(surface_point))
             };
     }
 

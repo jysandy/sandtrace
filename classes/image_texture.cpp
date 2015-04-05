@@ -1,16 +1,15 @@
-#include "texture.hpp"
-
+#include "image_texture.hpp"
 #include <cmath>
 
 namespace sandtrace
 {
-    texture::texture(std::string filename)
+    image_texture::image_texture(std::string filename)
     {
         namespace gil = boost::gil;
         gil::png_read_image(filename, tex_image_);
     }
 
-    glm::vec4 texture::sample(glm::vec2 texcoord) const
+    glm::vec4 image_texture::sample(glm::vec2 texcoord) const
     {
         namespace gil = boost::gil;
         //Point filtering
@@ -38,4 +37,4 @@ namespace sandtrace
     {
         return (x % n + n) % n;
     }
-}//namespace sandtrace
+}

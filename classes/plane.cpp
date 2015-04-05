@@ -2,8 +2,8 @@
 
 namespace sandtrace
 {
-    plane::plane(glm::vec3 point, glm::vec3 normal, material m, std::string texname) :
-    mat_(m), point(point), normal(glm::normalize(normal)), tex(texname)
+    plane::plane(glm::vec3 point, glm::vec3 normal, material m, std::shared_ptr<texture> tx) :
+    mat_(m), point(point), normal(glm::normalize(normal)), tex(tx)
     {
     }
 
@@ -33,7 +33,7 @@ namespace sandtrace
         return color_vertex{
             surface_point,
             this->normal,
-            tex.sample(texcoords_at(surface_point))
+            tex->sample(texcoords_at(surface_point))
             };
     }
 

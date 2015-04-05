@@ -3,8 +3,10 @@
 
 #include <map>
 #include <string>
+#include <memory>
 
 #include "texture.hpp"
+#include "image_texture.hpp"
 
 namespace sandtrace
 {
