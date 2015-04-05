@@ -13,7 +13,7 @@ namespace sandtrace
         monochrome_texture(glm::vec4 c) : color_(c){}
         virtual ~monochrome_texture(){}
 
-        virtual glm:::vec4 sample(glm::vec2 texcoord) const
+        virtual glm::vec4 sample(glm::vec2 texcoord) const
         {
             return color_;
         }

@@ -1,5 +1,5 @@
 #include "triangle.hpp"
-
+#include <iostream>
 namespace sandtrace
 {
     triangle::triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c,
@@ -14,7 +14,7 @@ namespace sandtrace
     {
         //Implements the Möller–Trumbore ray-triangle intersection algorithm,
         //as described at http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
-
+        intersection = glm::vec3(0);
         const float epsilon = 0.000001;
 
         auto e1 = vertices_[1].position - vertices_[0].position;
@@ -27,7 +27,6 @@ namespace sandtrace
         {
             return false;
         }
-
         auto inv_det = 1.0f / det;
 
         auto t = in_ray.origin - vertices_[0].position;
