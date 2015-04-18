@@ -1,5 +1,4 @@
 #include "triangle.hpp"
-#include <iostream>
 namespace sandtrace
 {
     triangle::triangle(polygon_vertex a, polygon_vertex b, polygon_vertex c,

@@ -9,6 +9,7 @@
 #include "classes/triangle.hpp"
 #include "classes/monochrome_texture.hpp"
 #include "classes/ray.hpp"
+#include "classes/scene.hpp"
 
 #include <random>
 #include <functional>
@@ -76,6 +77,13 @@ BOOST_AUTO_TEST_CASE(triangle_miss)
     BOOST_CHECK_EQUAL(triangle2.try_intersects(ray(origin, d - origin), dummy), false);
     d = glm::vec3{7.5, 5, 0};
     BOOST_CHECK_EQUAL(triangle2.try_intersects(ray(origin, d - origin), dummy), false);
+}
+
+BOOST_AUTO_TEST_CASE(scene_check)
+{
+    auto test_scene = scene::from_fbx_file("megalodon.FBX", "megalodon.png");
+    BOOST_CHECK_GT(test_scene.primitives.size(), 0);
+    BOOST_CHECK_GT(test_scene.meshes.size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE(triangle_hit)
@@ -197,7 +205,7 @@ triangle random_triangle()
     };
 }
 
-
+/*
 BOOST_AUTO_TEST_CASE(random_triangle_miss)
 {
     //These test cases are all supposed to miss the triangles.
@@ -238,4 +246,4 @@ BOOST_AUTO_TEST_CASE(random_triangle_hit)
         BOOST_CHECK_EQUAL(hit, true);
         check_equal_vectors(expected_intersection, intersection);
     }
-}
+}*/

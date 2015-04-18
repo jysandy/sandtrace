@@ -4,7 +4,7 @@
 namespace sandtrace
 {
     //Some helper functions to make the FBX file loading look more sane
-    std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(
+    std::list<std::shared_ptr<triangle>> triangle_list_from_mesh(
         FbxNode*, FbxMesh*, std::shared_ptr<texture>, std::shared_ptr<material>);
     std::array<polygon_vertex, 3> triangle_vertices_from_mesh(FbxMesh*, int polygon_index);
     material material_from_node(FbxNode*);
@@ -100,7 +100,7 @@ namespace sandtrace
             //Read the polygons.
             auto triangle_list = triangle_list_from_mesh(node, fbx_mesh, texpool.get(texname), std::make_shared<material>(mat));
 
-            this->meshes.emplace_back(triangle_list, mat, texpool.get(texname));
+            this->meshes.push_back(mesh(triangle_list, mat, texpool.get(texname)));
         }
 
         for (int i = 0; i < node->GetChildCount(); i++)
@@ -110,7 +110,7 @@ namespace sandtrace
 
     }
 
-    std::list<std::shared_ptr<triangle>>&& triangle_list_from_mesh(
+    std::list<std::shared_ptr<triangle>> triangle_list_from_mesh(
         FbxNode* node, FbxMesh* fbx_mesh, std::shared_ptr<texture> tex, std::shared_ptr<material> mat)
     {
         FbxAMatrix& mesh_matrix = node->EvaluateGlobalTransform();
@@ -136,12 +136,12 @@ namespace sandtrace
                 v.normal = glm::vec3(transform * glm::vec4(v.normal, 0.0f));
             }
 
-            ret.emplace_back(std::make_shared<triangle>(
+            ret.push_back(std::make_shared<triangle>(
                 vertices[0], vertices[1], vertices[2], tex, mat
             ));
         }
 
-        return std::move(ret);
+        return ret;
     }
 
     std::array<polygon_vertex, 3> triangle_vertices_from_mesh(FbxMesh* fbx_mesh, int polygon_index)
@@ -209,11 +209,11 @@ namespace sandtrace
             specular[i] = phong_surface->Specular.Get()[i];
         }
 
-        return std::move(material(
+        return material(
             ambient, diffuse, specular,
             phong_surface->Shininess.Get(),
             0   //TODO: Get the reflectance from the FBX file if possible
-        ));
+        );
     }
 
     camera scene::default_camera()
