@@ -24,9 +24,9 @@ namespace sandtrace
         auto image_view = gil::const_view(tex_image_);
         auto pixel = image_view(x, y);
         glm::vec4 out;
-        out.r = gil::get_color(pixel, gil::red_t());
-        out.g = gil::get_color(pixel, gil::green_t());
-        out.b = gil::get_color(pixel, gil::blue_t());
+        out.r = gil::get_color(pixel, gil::red_t()) / 255.0f;
+        out.g = gil::get_color(pixel, gil::green_t()) / 255.0f;
+        out.b = gil::get_color(pixel, gil::blue_t()) / 255.0f;
         //out.a = gil::get_color(pixel, gil::alpha_t());
         out.a = 1.0f;
 

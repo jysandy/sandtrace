@@ -78,6 +78,7 @@ namespace sandtrace
         const glm::vec3& intersection_point() const { return vertex_.position; }
         const glm::vec3& normal() const { return vertex_.normal; }
         const glm::vec4& color() const { return vertex_.color; }
+
     };
 
     /*
