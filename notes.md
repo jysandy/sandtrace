@@ -1,10 +1,10 @@
 This file is here for me to note down things about the project's design and so forth. I jot down my thoughts here. It helps me keep myself organized, since I often have to take breaks from working on sandtrace due to college/other commitments.
 
-####Black screen of death
-Sandtrace is just spitting out a black screen as of now. This is likely because the camera is pointing in the wrong direction. I need to compute the centroid of all the geometry and aim the camera at it.
+####Messed up colours
+The model's colours are all screwed up. Need to debug this. First I'll try without texturing.
 
 ####Octree
-Sandtrace is taking over 6.5 minutes to render a model with 3750 triangles. I really need to use an octree to speed up the intersection testing.
+I really need to use an octree to speed up the intersection testing.
 
 ####Randomized tests
 Improve the randomized tests. Right now they are all failing left and right. Clearly there's some mathematical error.

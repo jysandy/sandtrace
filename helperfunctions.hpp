@@ -8,6 +8,7 @@
 #include <future>
 #include <limits>
 #include <algorithm>
+#include <iostream>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -73,7 +74,7 @@ namespace sandtrace
         }
 
         const bool& intersects() const {return intersects_; }
-        const material& material() const { return mat_; }
+        const material& mat() const { return mat_; }
         const glm::vec3& intersection_point() const { return vertex_.position; }
         const glm::vec3& normal() const { return vertex_.normal; }
         const glm::vec4& color() const { return vertex_.color; }

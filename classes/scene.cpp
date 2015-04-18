@@ -218,7 +218,8 @@ namespace sandtrace
 
     camera scene::default_camera()
     {
-        auto look_from = glm::vec3(0.0f, 10.0f, 0.0f);
+        //(look_from - look_at) cross up must not be a null vector!!!
+        auto look_from = glm::vec3(150.0f, 30.0f, 0.0f);
         auto look_at = glm::vec3(0.0f, 0.0f, 0.0f);
         auto up = glm::vec3(0, 1, 0);
         auto fov = glm::half_pi<float>();

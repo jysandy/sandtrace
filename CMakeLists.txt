@@ -19,4 +19,4 @@ target_link_libraries(sandtrace -pthread classes ${PROGRAM_OPTIONS} ${FBXSDK} ${
 
 find_library(BOOST_TEST libboost_unit_test_framework.a)
 add_executable(test test.cpp helperfunctions.cpp)
-target_link_libraries(test -pthread -ldl classes ${BOOST_TEST} ${LIBJPEG} ${FBXSDK})
+target_link_libraries(test -pthread -ldl classes ${BOOST_TEST} ${LIBJPEG} ${FBXSDK} ${LIBDL})
