@@ -3,3 +3,5 @@
 temp/
 *.kdev4
 build/
+scene.png
+.vs/

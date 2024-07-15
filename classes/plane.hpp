@@ -8,6 +8,7 @@
 #include "primitive.hpp"
 #include "texture.hpp"
 #include "color_vertex.hpp"
+#include "material.hpp"
 
 namespace sandtrace
 {

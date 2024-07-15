@@ -13,8 +13,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include <boost/gil/gil_all.hpp>
-#include <boost/gil/extension/io/jpeg_io.hpp>
+#include <boost/gil.hpp>
 
 #include "classes/scene.hpp"
 #include "classes/sphere.hpp"
@@ -31,7 +30,7 @@ namespace sandtrace
     /*
      * Builds a scene with a sphere resting on a plane surface.
      */
-    //scene build_sphere_scene();
+    scene build_sphere_scene();
 
     /*
      * Renders the image into an image_data.
@@ -122,7 +121,7 @@ namespace sandtrace
     glm::vec4 saturate(glm::vec4 in);
 
     /*
-     * Save the scene as a JPEG image.
+     * Save the scene as a PNG image.
      */
     void save_scene(image_data img_data, std::string filename);
 }

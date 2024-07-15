@@ -1,6 +1,8 @@
 #include "helperfunctions.hpp"
 #include <iostream>
 #include <cmath>
+#include <boost/gil/io/write_view.hpp>
+#include "classes/monochrome_texture.hpp"
 
 namespace sandtrace
 {
@@ -14,6 +16,98 @@ namespace sandtrace
             << vec[1] << ", "
             << vec[2] << "]";
         return out;
+    }
+
+    scene build_sphere_scene()
+    {
+        auto primitives = scene::primitive_vector{};
+
+        //Add the sphere
+        auto sphere_position = glm::vec3{ 10, 15, -10 };
+        auto sphere_radius = 15.0f;
+
+        auto sphere_colour = glm::vec4(0, 0, 1, 1);
+        auto sphere_mat = material
+        {
+            sphere_colour,
+            sphere_colour,
+            glm::vec4{0.3, 0.3, 0.3, 1.0},
+            64,
+            0.15
+        };
+        primitives.push_back(std::make_shared<sphere>(sphere_position, 
+                                                      sphere_radius, 
+                                                      sphere_mat,
+                                                      std::make_shared<monochrome_texture>(sphere_colour)));
+
+        auto sphere2_colour = glm::vec4{ 1, 0, 0, 1.0 };
+
+        auto sphere2_mat = material
+        {
+            sphere2_colour,
+            sphere2_colour,
+            glm::vec4{0.6, 0.6, 0.6, 1.0},
+            100,
+            0.3
+        };
+
+        auto sphere2_position = sphere_position + glm::vec3{ 25, 0, 0 };
+        sphere2_position.y = 7;
+        auto sphere2_radius = 7.0f;
+        primitives.push_back(std::make_shared<sphere>(sphere2_position, 
+                                                      sphere2_radius, 
+                                                      sphere2_mat,
+                                                      std::make_shared<monochrome_texture>(sphere2_colour)));
+
+        //Add the plane
+        auto plane_point = glm::vec3{ 5, 0, -5 };
+        auto plane_normal = glm::vec3{ 0, 1, 0 };
+        auto plane_colour = glm::vec4
+        {
+            0xDA / 255.0f,
+            0xDA / 255.0f,
+            0xDA / 255.0f,
+            1
+        };//A silvery-grey colour
+        auto plane_mat = material
+        {
+            plane_colour,
+            plane_colour,
+            glm::vec4{0.5, 0.5, 0.5, 1.0},
+            128,
+            0.1
+        };
+        primitives.push_back(std::make_shared<plane>(plane_point, 
+                                                     plane_normal, 
+                                                     plane_mat,
+                                                     std::make_shared<monochrome_texture>(plane_colour)));
+
+        //Build the camera
+        //Positioning the camera to look at the sphere from slightly above
+        auto look_from = glm::vec3{ 20, 12, 20 };
+        auto look_at = (sphere_position + sphere2_position) / 2.0f;
+        auto up = glm::vec3{ 0, 1, 0 };
+        constexpr float fov = glm::half_pi<float>();
+        auto cam = camera{ look_from, look_at, up, fov };
+
+        //Build just one directional light
+        auto ambient = glm::vec4(0.1, 0.1, 0.1, 1.0);
+        glm::vec4 diffuse = 7.0f * ambient;
+        diffuse.w = 1.0f;  // glm::vec4(0.7, 0.7, 0.7, 1.0);
+        glm::vec4 specular = 5.0f * ambient;
+        specular.w = 1.0f;  //glm::vec4(0.5, 0.5, 0.5, 1.0);
+        auto direction = glm::vec3(1, -1, -1);
+        auto dlights = std::vector<directional_light>
+        {
+            directional_light{ambient, diffuse, specular, direction}
+        };
+
+        return scene
+        {
+            cam, primitives, dlights,
+            std::vector<point_light>{},
+            std::vector<spot_light>{}
+        };
     }
 
     image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
@@ -103,7 +197,7 @@ namespace sandtrace
             if (!data.intersects())
             {
                 //If the ray did not intersect any primitive
-                recursion_stack.emplace(empty_color, 0.0f);
+                recursion_stack.emplace(empty_color, 1.0f);
                 break;
             }
 
@@ -138,9 +232,11 @@ namespace sandtrace
         glm::vec3 closest_intersection;
         auto closest_distance = std::numeric_limits<float>::max();
         bool intersects = false;
+        // The ray is moved so that it doesn't intersect with the surface 
+        // that it originates from.
         auto moved_r = ray(r.origin + epsilon * r.direction, r.direction);
 
-        for (auto p : primitives)
+        for (const auto& p : primitives)
         {
             glm::vec3 intersection;
             if (p->try_intersects(moved_r, intersection))
@@ -185,7 +281,7 @@ namespace sandtrace
     {
         auto final_color = glm::vec4{0, 0, 0, 1};
 
-        for (auto dlight : target_scene.directional_lights)
+        for (const auto& dlight : target_scene.directional_lights)
         {
             final_color += idata.color() * dlight.ambient * idata.mat().ambient;
             final_color = saturate(final_color);
@@ -219,7 +315,7 @@ namespace sandtrace
     {
         auto final_color = glm::vec4{0, 0, 0, 1};
 
-        for (auto plight : target_scene.point_lights)
+        for (const auto& plight : target_scene.point_lights)
         {
             final_color += idata.color() * plight.ambient * idata.mat().ambient;
             final_color = saturate(final_color);
@@ -256,7 +352,7 @@ namespace sandtrace
     {
         auto final_color = glm::vec4{0, 0, 0, 1};
 
-        for (auto slight : target_scene.spot_lights)
+        for (const auto& slight : target_scene.spot_lights)
         {
             final_color += idata.color() * slight.ambient * idata.mat().ambient;
             final_color = saturate(final_color);
@@ -360,6 +456,6 @@ namespace sandtrace
             }
         }
 
-        gil::jpeg_write_view(filename, target_image_view);
+        gil::write_view(filename, target_image_view, gil::png_tag());
     }
 }

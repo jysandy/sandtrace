@@ -4,8 +4,8 @@
 #include <string>
 
 #include <glm/glm.hpp>
-#include <boost/gil/gil_all.hpp>
-#include <boost/gil/extension/io/png_io.hpp>
+#include <boost/gil.hpp>
+#include <boost/gil/extension/io/png.hpp>
 
 #include "texture.hpp"
 

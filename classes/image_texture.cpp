@@ -6,7 +6,7 @@ namespace sandtrace
     image_texture::image_texture(std::string filename)
     {
         namespace gil = boost::gil;
-        gil::png_read_image(filename, tex_image_);
+        gil::read_image(filename, tex_image_, gil::png_tag());
     }
 
     glm::vec4 image_texture::sample(glm::vec2 texcoord) const
