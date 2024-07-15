@@ -18,13 +18,20 @@ namespace sandtrace
         return out;
     }
 
+    glm::vec4 scale_colour(float scale_factor, glm::vec4 colour)
+    {
+        auto ret = scale_factor * colour;
+        ret.w = colour.w;
+        return ret;
+    }
+
     scene build_sphere_scene()
     {
         auto primitives = scene::primitive_vector{};
 
         //Add the sphere
-        auto sphere_position = glm::vec3{ 10, 15, -10 };
-        auto sphere_radius = 15.0f;
+        auto sphere_position = glm::vec3{ 10, 5, -10 };
+        auto sphere_radius = 5.0f;
 
         auto sphere_colour = glm::vec4(0, 0, 1, 1);
         auto sphere_mat = material
@@ -91,22 +98,47 @@ namespace sandtrace
         auto cam = camera{ look_from, look_at, up, fov };
 
         //Build just one directional light
-        auto ambient = glm::vec4(0.1, 0.1, 0.1, 1.0);
+        auto ambient = glm::vec4(0.01, 0.01, 0.01, 1.0);
         glm::vec4 diffuse = 7.0f * ambient;
-        diffuse.w = 1.0f;  // glm::vec4(0.7, 0.7, 0.7, 1.0);
+        diffuse.w = 1.0f;
         glm::vec4 specular = 5.0f * ambient;
-        specular.w = 1.0f;  //glm::vec4(0.5, 0.5, 0.5, 1.0);
+        specular.w = 1.0f;
         auto direction = glm::vec3(1, -1, -1);
         auto dlights = std::vector<directional_light>
         {
             directional_light{ambient, diffuse, specular, direction}
         };
 
+        // Build a spot light
+        auto slight1_colour = glm::vec4(190.0 / 255, 3.0 / 255, 252.0 / 255, 1);
+        auto slight2_colour = glm::vec4(35.0 / 255, 250.0 / 255, 2.0 / 255, 1);
+
+        auto spotlight_diffuse = glm::vec4(0.7, 0.7, 0.7, 1.0);
+        auto spotlight_specular = glm::vec4(0.9, 0.9, 0.9, 1.0);
+        auto spotlight_position = glm::vec3{ 40, 20, 5 };
+        auto spotlight_direction = sphere2_position - spotlight_position;
+        auto spotlight2_position = glm::vec3{ 0, 20, 5 };
+        auto slights = std::vector<spot_light>
+        {
+            spot_light{glm::vec4{0, 0, 0, 1}, 
+                       scale_colour(0.7, slight1_colour), 
+                       scale_colour(0.9, slight1_colour),
+                       1, 0, 0, 
+                       spotlight_position, spotlight_direction, 
+                       6},
+            spot_light{glm::vec4{0, 0, 0, 1}, 
+                       scale_colour(0.7, slight2_colour),
+                       scale_colour(0.9, slight2_colour),
+                       1, 0, 0,
+                       spotlight2_position, sphere_position - spotlight2_position,
+                       10},
+        };
+
         return scene
         {
             cam, primitives, dlights,
             std::vector<point_light>{},
-            std::vector<spot_light>{}
+            slights
         };
     }
 
@@ -361,6 +393,10 @@ namespace sandtrace
             auto d = glm::length(light_vector);
             light_vector = glm::normalize(light_vector);
             auto shadow_ray = ray{idata.intersection_point() + epsilon * light_vector, light_vector};
+            if (is_blocked(shadow_ray, target_scene.primitives, slight.position))
+            {
+                continue;
+            }
 
             auto attenuation_factor = 1.0f / (slight.a0 + slight.a1 * d + slight.a2 * d * d);
             auto intensity_factor = glm::pow(
