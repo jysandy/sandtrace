@@ -10,13 +10,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include "mesh.hpp"
+#include "geometry/mesh.hpp"
 #include "camera.hpp"
-#include "primitive.hpp"
-#include "directional_light.hpp"
-#include "point_light.hpp"
-#include "spot_light.hpp"
-#include "texture_pool.hpp"
+#include "geometry/primitive.hpp"
+#include "lighting/directional_light.hpp"
+#include "lighting/point_light.hpp"
+#include "lighting/spot_light.hpp"
+#include "textures/texture_pool.hpp"
 
 /*
  * Defines a 3D scene as a camera and a collection of primitives.

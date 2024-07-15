@@ -7,9 +7,9 @@
 
 #include "polygon_vertex.hpp"
 #include "ray.hpp"
-#include "texture.hpp"
+#include "textures/texture.hpp"
 #include "primitive.hpp"
-#include "material.hpp"
+#include "lighting/material.hpp"
 
 namespace sandtrace
 {

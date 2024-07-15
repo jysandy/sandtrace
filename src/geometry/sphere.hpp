@@ -10,8 +10,8 @@
 #include <glm/gtc/constants.hpp>
 
 #include "primitive.hpp"
-#include "texture.hpp"
-#include "material.hpp"
+#include "textures/texture.hpp"
+#include "lighting/material.hpp"
 
 
 namespace sandtrace

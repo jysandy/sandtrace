@@ -1,8 +1,8 @@
-#include "helperfunctions.hpp"
+#include "renderer.hpp"
 #include <iostream>
 #include <cmath>
 #include <boost/gil/io/write_view.hpp>
-#include "classes/monochrome_texture.hpp"
+#include "textures/monochrome_texture.hpp"
 
 namespace sandtrace
 {

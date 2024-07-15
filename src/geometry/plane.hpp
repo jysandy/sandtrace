@@ -6,9 +6,9 @@
 #include <glm/glm.hpp>
 
 #include "primitive.hpp"
-#include "texture.hpp"
+#include "textures/texture.hpp"
 #include "color_vertex.hpp"
-#include "material.hpp"
+#include "lighting/material.hpp"
 
 namespace sandtrace
 {

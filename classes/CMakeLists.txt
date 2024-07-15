@@ -1,7 +1,0 @@
-file(GLOB sources *.cpp)
-#add_definitions(-std=c++14)
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-find_package(glm CONFIG REQUIRED)
-add_library(classes ${sources})
-target_link_libraries(classes glm::glm)

@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "triangle.hpp"
-#include "material.hpp"
+#include "lighting/material.hpp"
 
 namespace sandtrace
 {

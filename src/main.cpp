@@ -2,9 +2,9 @@
 #include <iostream>
 #include <cmath>
 
-#include "classes/image_data.hpp"
-#include "classes/scene.hpp"
-#include "helperfunctions.hpp"
+#include "image_data.hpp"
+#include "scene/scene.hpp"
+#include "renderer.hpp"
 
 int main(int argc, char** argv)
 {
@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     render_width = render_height = 1500;
 
     std::cout << "Constructing scene..." << std::flush;
-    auto render_scene = build_sphere_scene();
+    auto sphere_scene = build_sphere_scene();
     std::cout << "done." << std::endl;
 
     //int number_of_threads = m["threads"].as<int>();
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
     std::cout << "Rendering..." << std::flush;
     auto begin_time = chrono::steady_clock::now();
     //Render!!
-    auto im_data = render_image(render_width, render_height, render_scene, number_of_threads);
+    auto im_data = render_image(render_width, render_height, sphere_scene, number_of_threads);
     auto duration = chrono::steady_clock::now() - begin_time;
     std::cout << "done." << std::endl;
 

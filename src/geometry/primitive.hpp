@@ -1,7 +1,7 @@
 #ifndef __PRIMITIVE_H__
 #define __PRIMITIVE_H__
 
-#include "material.hpp"
+#include "lighting/material.hpp"
 #include "ray.hpp"
 #include "color_vertex.hpp"
 

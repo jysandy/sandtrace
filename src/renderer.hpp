@@ -15,14 +15,14 @@
 
 #include <boost/gil.hpp>
 
-#include "classes/scene.hpp"
-#include "classes/sphere.hpp"
-#include "classes/plane.hpp"
-#include "classes/image_data.hpp"
-#include "classes/camera.hpp"
-#include "classes/primitive.hpp"
-#include "classes/material.hpp"
-#include "classes/polygon_vertex.hpp"
+#include "scene/scene.hpp"
+#include "geometry/sphere.hpp"
+#include "geometry/plane.hpp"
+#include "image_data.hpp"
+#include "scene/camera.hpp"
+#include "geometry/primitive.hpp"
+#include "lighting/material.hpp"
+#include "geometry/polygon_vertex.hpp"
 
 
 namespace sandtrace
