@@ -2,6 +2,7 @@
 #define __SPOT_LIGHT_H__
 
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 namespace sandtrace
 {
@@ -24,6 +25,8 @@ namespace sandtrace
         {
         }
 
+        spot_light() {}
+
         glm::vec4 ambient;
         glm::vec4 diffuse;
         glm::vec4 specular;
@@ -32,6 +35,8 @@ namespace sandtrace
         glm::vec3 direction;
         float power;
     };
+
+    void from_json(const nlohmann::json& j, spot_light& s);
 }
 
 #endif

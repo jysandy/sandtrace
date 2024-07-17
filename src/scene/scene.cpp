@@ -1,5 +1,7 @@
 #include "scene.hpp"
-#include <iostream>
+#include "serdes/json.hpp"
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 namespace sandtrace
 {
@@ -55,4 +57,25 @@ namespace sandtrace
     {
     }
 
+    scene scene::from_json(std::string filename)
+    {
+        using json = nlohmann::json;
+        std::ifstream f(filename);
+        auto scene_data = json::parse(f);
+        auto the_scene = scene();
+        
+
+        // TODO: Validate that (look_at - look_from) and up are not parallel/antiparallel
+        the_scene.cam.look_from = vec_from_json<3>(scene_data["camera"]["look_from"]);
+        the_scene.cam.look_at   = vec_from_json<3>(scene_data["camera"]["look_at"]);
+        the_scene.cam.up        = vec_from_json<3>(scene_data["camera"]["up"]);
+        the_scene.cam.fov       = glm::radians(scene_data["camera"]["fov_degrees"].template get<float>());
+
+        the_scene.directional_lights = 
+            scene_data["directional_lights"].template get<std::vector<directional_light>>();
+        the_scene.spot_lights = 
+            scene_data["spot_lights"].template get<std::vector<spot_light>>();
+
+        return the_scene;
+    }
 }

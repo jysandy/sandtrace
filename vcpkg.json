@@ -1,7 +1,8 @@
 {
   "dependencies": [
+    "boost",
     "glm",
     "libpng",
-    "boost"
+    "nlohmann-json"
   ]
 }

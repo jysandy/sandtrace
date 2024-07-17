@@ -116,11 +116,6 @@ namespace sandtrace
     bool is_blocked(const ray& r, const scene::primitive_vector& primitives, const glm::vec3& limit);
 
     /*
-     * Saturates a colour, preserving the RGB proportions.
-     */
-    glm::vec4 saturate(glm::vec4 in);
-
-    /*
      * Save the scene as a PNG image.
      */
     void save_scene(image_data img_data, std::string filename);

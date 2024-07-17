@@ -38,6 +38,7 @@ namespace sandtrace
         static std::vector<directional_light> default_dlights();
         static std::vector<point_light> default_plights();
         static std::vector<spot_light> default_slights();
+        static scene from_json(std::string filename);
 
         primitive_vector primitives;
         std::list<mesh> meshes;

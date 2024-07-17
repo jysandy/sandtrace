@@ -3,6 +3,7 @@
 #include <cmath>
 #include <boost/gil/io/write_view.hpp>
 #include "textures/monochrome_texture.hpp"
+#include "lighting/colour.hpp"
 
 namespace sandtrace
 {
@@ -18,29 +19,22 @@ namespace sandtrace
         return out;
     }
 
-    glm::vec4 scale_colour(float scale_factor, glm::vec4 colour)
-    {
-        auto ret = scale_factor * colour;
-        ret.w = colour.w;
-        return ret;
-    }
-
     scene build_sphere_scene()
     {
         auto primitives = scene::primitive_vector{};
 
         //Add the sphere
-        auto sphere_position = glm::vec3{ 10, 5, -10 };
+        auto sphere_position = glm::vec3{ 10, 10, -10 };
         auto sphere_radius = 5.0f;
 
-        auto sphere_colour = glm::vec4(0, 0, 1, 1);
+        auto sphere_colour = glm::vec4(0.8, 0.8, 0.8, 1);
         auto sphere_mat = material
         {
             sphere_colour,
             sphere_colour,
             glm::vec4{0.3, 0.3, 0.3, 1.0},
-            64,
-            0.15
+            256,
+            0.7
         };
         primitives.push_back(std::make_shared<sphere>(sphere_position, 
                                                       sphere_radius, 
@@ -53,9 +47,9 @@ namespace sandtrace
         {
             sphere2_colour,
             sphere2_colour,
-            glm::vec4{0.6, 0.6, 0.6, 1.0},
-            100,
-            0.3
+            glm::vec4{0.8, 0.8, 0.8, 1.0},
+            200,
+            0.05
         };
 
         auto sphere2_position = sphere_position + glm::vec3{ 25, 0, 0 };
@@ -84,62 +78,30 @@ namespace sandtrace
             128,
             0.1
         };
+
+        auto plane2_mat = material
+        {
+            glm::vec4(0.5, 0.3, 0.3, 1),
+            glm::vec4(0.5, 0.3, 0.3, 1),
+            glm::vec4{0.5, 0.5, 0.5, 1.0},
+            128,
+            0
+        };
         primitives.push_back(std::make_shared<plane>(plane_point, 
                                                      plane_normal, 
                                                      plane_mat,
                                                      std::make_shared<monochrome_texture>(plane_colour)));
 
-        //Build the camera
-        //Positioning the camera to look at the sphere from slightly above
-        auto look_from = glm::vec3{ 20, 12, 20 };
-        auto look_at = (sphere_position + sphere2_position) / 2.0f;
-        auto up = glm::vec3{ 0, 1, 0 };
-        constexpr float fov = glm::half_pi<float>();
-        auto cam = camera{ look_from, look_at, up, fov };
 
-        //Build just one directional light
-        auto ambient = glm::vec4(0.01, 0.01, 0.01, 1.0);
-        glm::vec4 diffuse = 7.0f * ambient;
-        diffuse.w = 1.0f;
-        glm::vec4 specular = 5.0f * ambient;
-        specular.w = 1.0f;
-        auto direction = glm::vec3(1, -1, -1);
-        auto dlights = std::vector<directional_light>
-        {
-            directional_light{ambient, diffuse, specular, direction}
-        };
+        primitives.push_back(std::make_shared<plane>(glm::vec3{ 5, 0, -30 },
+                                                     glm::vec3{ 0, 0, 1 },
+                                                     plane2_mat,
+                                                     std::make_shared<monochrome_texture>(plane_colour)));
 
-        // Build a spot light
-        auto slight1_colour = glm::vec4(190.0 / 255, 3.0 / 255, 252.0 / 255, 1);
-        auto slight2_colour = glm::vec4(35.0 / 255, 250.0 / 255, 2.0 / 255, 1);
-
-        auto spotlight_diffuse = glm::vec4(0.7, 0.7, 0.7, 1.0);
-        auto spotlight_specular = glm::vec4(0.9, 0.9, 0.9, 1.0);
-        auto spotlight_position = glm::vec3{ 40, 20, 5 };
-        auto spotlight_direction = sphere2_position - spotlight_position;
-        auto spotlight2_position = glm::vec3{ 0, 20, 5 };
-        auto slights = std::vector<spot_light>
-        {
-            spot_light{glm::vec4{0, 0, 0, 1}, 
-                       scale_colour(0.7, slight1_colour), 
-                       scale_colour(0.9, slight1_colour),
-                       1, 0, 0, 
-                       spotlight_position, spotlight_direction, 
-                       6},
-            spot_light{glm::vec4{0, 0, 0, 1}, 
-                       scale_colour(0.7, slight2_colour),
-                       scale_colour(0.9, slight2_colour),
-                       1, 0, 0,
-                       spotlight2_position, sphere_position - spotlight2_position,
-                       10},
-        };
-
-        return scene
-        {
-            cam, primitives, dlights,
-            std::vector<point_light>{},
-            slights
-        };
+        auto the_scene = scene::from_json("scenes/scene1.json");
+        the_scene.primitives = primitives;
+        the_scene.point_lights = std::vector<point_light>{};
+        return the_scene;
     }
 
     image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
@@ -236,7 +198,7 @@ namespace sandtrace
             auto color = phong_color(current_ray, data, target_scene);
             recursion_stack.emplace(color, data.mat().reflectance);
 
-            if (color <= glm::vec4{0.01, 0.01, 0.01, 1.0})
+            if (color <= glm::vec4{0.001, 0.001, 0.001, 1.0})
             {
                 break;
             }
@@ -399,8 +361,12 @@ namespace sandtrace
             }
 
             auto attenuation_factor = 1.0f / (slight.a0 + slight.a1 * d + slight.a2 * d * d);
+            // TODO: This is not right
+            // If the dot product is less than 1, then the intensity factor decreases with the exponent
+            // Maybe invert it before pow or add a constant instead?
+            // Added 1 for now. Evaluate other options?
             auto intensity_factor = glm::pow(
-                                    std::max(glm::dot(-light_vector, slight.direction), 0.0f),
+                                    1 + std::max(glm::dot(-light_vector, slight.direction), 0.0f),
                                     slight.power);
 
             //Diffuse component
@@ -417,25 +383,6 @@ namespace sandtrace
         }
 
         return final_color;
-    }
-
-    glm::vec4 saturate(glm::vec4 in)
-    {
-        using std::max;
-        auto greatest = max(max(in.x, in.y), in.z);
-        if (greatest > 1)
-        {
-            in.x /= greatest;
-            in.y /= greatest;
-            in.z /= greatest;
-        }
-
-        if (in.w > 1)
-        {
-            in.w = 1;
-        }
-
-        return in;
     }
 
     bool is_blocked(const ray& r, const scene::primitive_vector& primitives)
