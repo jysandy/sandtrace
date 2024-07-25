@@ -2,33 +2,35 @@
   "camera": {
     "up": [ 0, 1, 0 ],
     "look_from": [ 17.5, 12, 30 ],
-    "look_at": [ 17.5, 6, -10 ],
+    "look_at": [ 22.5, 6, -10 ],
     "fov_degrees": 90
   },
   "spot_lights": [
     {
-      "colour": [ 0.137, 0.980, 0.007, 1 ],
-      "ambient_factor": 0.1,
+      "colour": [ 1, 0.314, 0.941, 1 ],
+      "ambient_factor": 0,
       "diffuse_factor": 0.2,
       "specular_factor": 0.5,
-      "position": [ -10, 20, 5 ],
+      "position": [ 0, 10, 5 ],
       "look_at": [ 10, 10, -10 ],
       "brightness": 2,
       "a1": 0.01,
       "a2": 0.001,
-      "power": 1.2
-    }
-  ],
-  "point_lights": [
+      "angle_degrees": 70,
+      "power": 1.5
+    },
     {
-      "colour": [ 1, 0.784, 0.314, 1 ],
-      "ambient_factor": 0.1,
-      "diffuse_factor": 0.45,
-      "specular_factor": 0.3,
-      "position": [ 17.5, 25, 0 ],
-      "brightness": 30,
-      "a1": 0.05,
-      "a2": 0.1
+      "colour": [ 0.227, 1, 0.196, 1 ],
+      "ambient_factor": 0,
+      "diffuse_factor": 0.2,
+      "specular_factor": 0.5,
+      "position": [ 40, 10, 15 ],
+      "look_at": [ 35, 10, -10 ],
+      "brightness": 2,
+      "a1": 0.01,
+      "a2": 0.001,
+      "angle_degrees": 70,
+      "power": 1.5
     }
   ]
 }

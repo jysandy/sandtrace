@@ -1,3 +1,5 @@
+#include <glm/glm.hpp>
+
 #include "lighting/spot_light.hpp"
 #include "lighting/colour.hpp"
 #include "serdes/json.hpp"
@@ -16,6 +18,7 @@ namespace sandtrace
 		s.brightness = j.at("brightness");
 		s.a1		 = j.at("a1");
 		s.a2		 = j.at("a2");
+		s.angle		 = glm::radians(j.at("angle_degrees") / 2.0f);
 		s.power		 = j.at("power");
 	}
 }

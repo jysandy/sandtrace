@@ -17,11 +17,13 @@ namespace sandtrace
             float a1, float a2,
             glm::vec3 position,
             glm::vec3 direction,
+            float angle,
             float power):
             ambient(ambient), diffuse(diffuse), specular(specular),
             brightness(brightness), a1(a1), a2(a2),
             position(position),
             direction(glm::normalize(direction)),
+            angle(angle),
             power(power)
         {
         }
@@ -34,6 +36,7 @@ namespace sandtrace
         float brightness, a1, a2;    //Attenuation parameters
         glm::vec3 position;
         glm::vec3 direction;
+        float angle;
         float power;
     };
 
