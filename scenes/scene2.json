@@ -1,0 +1,20 @@
+{
+  "camera": {
+    "up": [ 0, 1, 0 ],
+    "look_from": [ 17.5, 12, 30 ],
+    "look_at": [ 17.5, 6, -10 ],
+    "fov_degrees": 90
+  },
+  "point_lights": [
+    {
+      "colour": [ 1, 0.784, 0.314, 1 ],
+      "ambient_factor": 0.1,
+      "diffuse_factor": 0.45,
+      "specular_factor": 0.3,
+      "position": [ 17.5, 25, 0 ],
+      "a0": 0,
+      "a1": 0,
+      "a2": 0.005
+    }
+  ]
+}

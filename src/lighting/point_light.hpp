@@ -2,6 +2,7 @@
 #define __POINT_LIGHT_H__
 
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 namespace sandtrace
 {
@@ -20,12 +21,16 @@ namespace sandtrace
         {
         }
 
+        point_light() {}
+
         glm::vec4 ambient;
         glm::vec4 diffuse;
         glm::vec4 specular;
         float a0, a1, a2;    //Attenuation parameters
         glm::vec3 position;
     };
+
+    void from_json(const nlohmann::json& j, point_light& p);
 }
 
 #endif

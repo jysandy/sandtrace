@@ -98,9 +98,8 @@ namespace sandtrace
                                                      plane2_mat,
                                                      std::make_shared<monochrome_texture>(plane_colour)));
 
-        auto the_scene = scene::from_json("scenes/scene1.json");
+        auto the_scene = scene::from_json("scenes/scene2.json");
         the_scene.primitives = primitives;
-        the_scene.point_lights = std::vector<point_light>{};
         return the_scene;
     }
 
