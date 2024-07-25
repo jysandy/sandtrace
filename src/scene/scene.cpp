@@ -72,9 +72,9 @@ namespace sandtrace
         the_scene.cam.fov       = glm::radians(scene_data["camera"]["fov_degrees"].template get<float>());
 
         the_scene.directional_lights = 
-            scene_data["directional_lights"].template get<std::vector<directional_light>>();
-        the_scene.spot_lights = 
-            scene_data["spot_lights"].template get<std::vector<spot_light>>();
+            scene_data.value("directional_lights", std::vector<directional_light>{});
+        the_scene.spot_lights =
+            scene_data.value("spot_lights", std::vector<spot_light>{});
 
         return the_scene;
     }
