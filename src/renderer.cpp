@@ -98,7 +98,7 @@ namespace sandtrace
                                                      plane2_mat,
                                                      std::make_shared<monochrome_texture>(plane_colour)));
 
-        auto the_scene = scene::from_json("scenes/scene2.json");
+        auto the_scene = scene::from_json("scenes/scene1.json");
         the_scene.primitives = primitives;
         return the_scene;
     }
@@ -323,7 +323,7 @@ namespace sandtrace
                 continue;
             }
 
-            auto attenuation_factor = 1.0f / (plight.a0 + plight.a1 * d + plight.a2 * d * d);
+            auto attenuation_factor = plight.brightness / (1 + plight.a1 * d + plight.a2 * d * d);
 
             //Diffuse component
             auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
@@ -359,7 +359,7 @@ namespace sandtrace
                 continue;
             }
 
-            auto attenuation_factor = 1.0f / (slight.a0 + slight.a1 * d + slight.a2 * d * d);
+            auto attenuation_factor = slight.brightness / (1 + slight.a1 * d + slight.a2 * d * d);
             // TODO: This is not right
             // If the dot product is less than 1, then the intensity factor decreases with the exponent
             // Maybe invert it before pow or add a constant instead?

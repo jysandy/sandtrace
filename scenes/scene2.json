@@ -12,9 +12,9 @@
       "diffuse_factor": 0.45,
       "specular_factor": 0.3,
       "position": [ 17.5, 25, 0 ],
-      "a0": 0,
-      "a1": 0,
-      "a2": 0.005
+      "brightness": 16,
+      "a1": 0.05,
+      "a2": 0.1
     }
   ]
 }

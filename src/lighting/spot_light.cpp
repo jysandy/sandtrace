@@ -6,16 +6,16 @@ namespace sandtrace
 {
 	void from_json(const nlohmann::json& j, spot_light& s)
 	{
-		glm::vec4 colour = vec_from_json<4>(j["colour"]);
-		s.ambient = saturate(j["ambient_factor"].template get<float>() * colour);
-		s.diffuse = saturate(j["diffuse_factor"].template get<float>() * colour);
-		s.specular = saturate(j["specular_factor"].template get<float>() * colour);
-		s.position = vec_from_json<3>(j["position"]);
-		glm::vec3 look_at = vec_from_json<3>(j["look_at"]);
-		s.direction = glm::normalize(look_at - s.position);
-		s.a0 = j["a0"].template get<float>();
-		s.a1 = j["a1"].template get<float>();
-		s.a2 = j["a2"].template get<float>();
-		s.power = j["power"].template get<float>();
+		glm::vec4 colour = vec_from_json<4>(j.at("colour"));
+		s.ambient	 = saturate(j.at("ambient_factor").template get<float>() * colour);
+		s.diffuse	 = saturate(j.at("diffuse_factor").template get<float>() * colour);
+		s.specular	 = saturate(j.at("specular_factor").template get<float>() * colour);
+		s.position	 = vec_from_json<3>(j.at("position"));
+		glm::vec3 look_at = vec_from_json<3>(j.at("look_at"));
+		s.direction	 = glm::normalize(look_at - s.position);
+		s.brightness = j.at("brightness");
+		s.a1		 = j.at("a1");
+		s.a2		 = j.at("a2");
+		s.power		 = j.at("power");
 	}
 }
