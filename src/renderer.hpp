@@ -30,7 +30,7 @@ namespace sandtrace
     /*
      * Builds a scene with a sphere resting on a plane surface.
      */
-    scene build_sphere_scene();
+    scene::primitive_vector build_sphere_primitives();
 
     /*
      * Renders the image into an image_data.

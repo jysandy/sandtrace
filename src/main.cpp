@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <nlohmann/json.hpp>
+#include <cxxopts.hpp>
 
 #include "image_data.hpp"
 #include "scene/scene.hpp"
@@ -12,17 +13,26 @@ int main(int argc, char** argv)
 	using namespace sandtrace;
 	namespace chrono = std::chrono;
 
+	cxxopts::Options options("sandtrace", "A recursive ray tracer");
+	options.add_options()
+		("s,scene", "Scene file", cxxopts::value<std::string>())
+		("t,threads", "Number of threads", cxxopts::value<int>()->default_value("4"))
+		("o,output", "Output file", cxxopts::value<std::string>()->default_value("scene.png"))
+		;
+
 	try
 	{
+		auto parsed_options = options.parse(argc, argv);
+
 		int render_width, render_height;
 		render_width = render_height = 1500;
 
 		std::cout << "Constructing scene..." << std::flush;
-		auto sphere_scene = build_sphere_scene();
+		auto sphere_scene = scene::from_json(parsed_options["scene"].as<std::string>());
+		sphere_scene.primitives = build_sphere_primitives();
 		std::cout << "done." << std::endl;
 
-		//int number_of_threads = m["threads"].as<int>();
-		int number_of_threads = 4;
+		int number_of_threads = parsed_options["threads"].as<int>();
 		std::cout << "Rendering..." << std::flush;
 		auto begin_time = chrono::steady_clock::now();
 		//Render!!
@@ -38,7 +48,7 @@ int main(int argc, char** argv)
 		std::cout << hours.count() << ":" << minutes.count() << ":" << seconds.count()
 			<< ":" << milliseconds.count() << std::endl;
 
-		std::string filename = "scene.png";
+		std::string filename = parsed_options["output"].as<std::string>();
 		std::cout << "Saving to " + filename + "..." << std::flush;
 		save_scene(im_data, filename);
 		std::cout << "done." << std::endl;
@@ -48,6 +58,16 @@ int main(int argc, char** argv)
 	catch (const nlohmann::json::exception& e)
 	{
 		std::cerr << "Error parsing json!" << std::endl;
+		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+	catch (const cxxopts::exceptions::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+	catch (const std::runtime_error& e)
+	{
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}

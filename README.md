@@ -5,4 +5,4 @@ A recursive ray tracer.
 - Install `CMake`, `vcpkg` and a C++ compiler. sandtrace was developed and tested with MSVC.
 - `cmake --preset=default`
 - `cmake --build build`
-- `.\build\sandtrace.exe; Invoke-Item scene.png`
+- `.\build\sandtrace.exe -s ".\scenes\scene1.json"; Invoke-Item scene.png`

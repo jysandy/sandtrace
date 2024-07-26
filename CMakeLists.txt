@@ -2,13 +2,14 @@ cmake_minimum_required(VERSION 3.28)
 
 project("Sandtrace")
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 find_package(glm CONFIG REQUIRED)
 find_package(PNG REQUIRED)
 find_package(Boost REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_package(cxxopts CONFIG REQUIRED)
 
 add_executable(sandtrace)
 target_include_directories(sandtrace PRIVATE src/)
@@ -17,6 +18,7 @@ target_link_libraries(sandtrace PRIVATE
 	PNG::PNG
 	Boost::boost
 	nlohmann_json::nlohmann_json
+	cxxopts::cxxopts
 )
 
 target_sources(sandtrace PRIVATE

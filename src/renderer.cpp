@@ -19,7 +19,7 @@ namespace sandtrace
 		return out;
 	}
 
-	scene build_sphere_scene()
+	scene::primitive_vector build_sphere_primitives()
 	{
 		auto primitives = scene::primitive_vector{};
 
@@ -98,9 +98,7 @@ namespace sandtrace
 			plane2_mat,
 			std::make_shared<monochrome_texture>(plane_colour)));
 
-		auto the_scene = scene::from_json("scenes/scene1.json");
-		the_scene.primitives = primitives;
-		return the_scene;
+		return primitives;
 	}
 
 	image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)

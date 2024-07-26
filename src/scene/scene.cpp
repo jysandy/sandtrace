@@ -61,6 +61,12 @@ namespace sandtrace
     {
         using json = nlohmann::json;
         std::ifstream f(filename);
+
+        if (f.fail())
+        {
+            throw std::runtime_error("Couldn't open scene file");
+        }
+
         auto scene_data = json::parse(f);
         auto the_scene = scene();
         

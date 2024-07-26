@@ -3,6 +3,7 @@
     "boost",
     "glm",
     "libpng",
-    "nlohmann-json"
+    "nlohmann-json",
+    "cxxopts"
   ]
 }
