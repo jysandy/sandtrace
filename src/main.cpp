@@ -29,7 +29,9 @@ int main(int argc, char** argv)
 
 		std::cout << "Constructing scene..." << std::flush;
 		auto sphere_scene = scene::from_json(parsed_options["scene"].as<std::string>());
-		sphere_scene.primitives = build_sphere_primitives();
+		auto primitives_tuple = build_sphere_primitives();
+		sphere_scene.spheres = std::get<0>(primitives_tuple);
+		sphere_scene.planes = std::get<1>(primitives_tuple);
 		std::cout << "done." << std::endl;
 
 		int number_of_threads = parsed_options["threads"].as<int>();

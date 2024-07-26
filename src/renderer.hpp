@@ -9,6 +9,7 @@
 #include <limits>
 #include <algorithm>
 #include <iostream>
+#include <utility>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
@@ -30,7 +31,7 @@ namespace sandtrace
     /*
      * Builds a scene with a sphere resting on a plane surface.
      */
-    scene::primitive_vector build_sphere_primitives();
+    std::tuple<std::vector<sphere>, std::vector<plane>> build_sphere_primitives();
 
     /*
      * Renders the image into an image_data.
@@ -83,7 +84,7 @@ namespace sandtrace
     /*
      * Returns data of the closest primitive which intersects the given ray.
      */
-    intersection_data nearest_intersection(const ray& r, const scene::primitive_vector& primitives);
+    intersection_data nearest_intersection(const ray& r, const scene& s);
 
     /*
      * Applies the Phong model to compute the color at the intersection point.
@@ -108,12 +109,12 @@ namespace sandtrace
     /*
      * Tests if the ray intersects ANY primitive.
      */
-    bool is_blocked(const ray& r, const scene::primitive_vector& primitives);
+    bool is_blocked(const ray& r, const scene& s);
 
     /*
      * Tests if the ray is blocked at any point between its origin and the limit.
      */
-    bool is_blocked(const ray& r, const scene::primitive_vector& primitives, const glm::vec3& limit);
+    bool is_blocked(const ray& r, const scene& s, const glm::vec3& limit);
 
     /*
      * Save the scene as a PNG image.

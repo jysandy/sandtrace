@@ -46,11 +46,13 @@ namespace sandtrace
     }
 
 
-    scene::scene(camera c, scene::primitive_vector p,
+    scene::scene(camera c, 
+        std::vector<sphere> spheres,
+        std::vector<plane> planes,
         std::vector<directional_light> directional_lights,
         std::vector<point_light> point_lights,
         std::vector<spot_light> spot_lights) :
-        cam(c), primitives(p),
+        cam(c), spheres(spheres), planes(planes),
         directional_lights(directional_lights),
         point_lights(point_lights),
         spot_lights(spot_lights)

@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 #include <iostream>
 #include <cmath>
+#include <utility>
 #include <boost/gil/io/write_view.hpp>
 #include "textures/monochrome_texture.hpp"
 #include "lighting/colour.hpp"
@@ -19,9 +20,10 @@ namespace sandtrace
 		return out;
 	}
 
-	scene::primitive_vector build_sphere_primitives()
+	std::tuple<std::vector<sphere>, std::vector<plane>> build_sphere_primitives()
 	{
-		auto primitives = scene::primitive_vector{};
+		auto spheres = std::vector<sphere>{};
+		auto planes = std::vector<plane>{};
 
 		//Add the sphere
 		auto sphere_position = glm::vec3{ 10, 10, -10 };
@@ -36,7 +38,7 @@ namespace sandtrace
 			256,
 			0.7
 		};
-		primitives.push_back(std::make_shared<sphere>(sphere_position,
+		spheres.push_back(sphere(sphere_position,
 			sphere_radius,
 			sphere_mat,
 			std::make_shared<monochrome_texture>(sphere_colour)));
@@ -55,7 +57,7 @@ namespace sandtrace
 		auto sphere2_position = sphere_position + glm::vec3{ 25, 0, 0 };
 		sphere2_position.y = 7;
 		auto sphere2_radius = 7.0f;
-		primitives.push_back(std::make_shared<sphere>(sphere2_position,
+		spheres.push_back(sphere(sphere2_position,
 			sphere2_radius,
 			sphere2_mat,
 			std::make_shared<monochrome_texture>(sphere2_colour)));
@@ -87,18 +89,18 @@ namespace sandtrace
 			128,
 			0
 		};
-		primitives.push_back(std::make_shared<plane>(plane_point,
+		planes.push_back(plane(plane_point,
 			plane_normal,
 			plane_mat,
 			std::make_shared<monochrome_texture>(plane_colour)));
 
 
-		primitives.push_back(std::make_shared<plane>(glm::vec3{ 5, 0, -30 },
+		planes.push_back(plane(glm::vec3{ 5, 0, -30 },
 			glm::vec3{ 0, 0, 1 },
 			plane2_mat,
 			std::make_shared<monochrome_texture>(plane_colour)));
 
-		return primitives;
+		return std::make_tuple(spheres, planes);
 	}
 
 	image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
@@ -184,7 +186,7 @@ namespace sandtrace
 
 		while (recursion_stack.size() < max_stack_depth + 1)
 		{
-			auto data = nearest_intersection(current_ray, target_scene.primitives);
+			auto data = nearest_intersection(current_ray, target_scene);
 			if (!data.intersects())
 			{
 				//If the ray did not intersect any primitive
@@ -217,9 +219,9 @@ namespace sandtrace
 		return final_color;
 	}
 
-	intersection_data nearest_intersection(const ray& r, const scene::primitive_vector& primitives)
+	intersection_data nearest_intersection(const ray& r, const scene& s)
 	{
-		auto closest_primitive = primitives[0];
+		const primitive* closest_primitive = nullptr;
 		glm::vec3 closest_intersection;
 		auto closest_distance = std::numeric_limits<float>::max();
 		bool intersects = false;
@@ -227,10 +229,10 @@ namespace sandtrace
 		// that it originates from.
 		auto moved_r = ray(r.origin + epsilon * r.direction, r.direction);
 
-		for (const auto& p : primitives)
+		for (const auto& p : s.spheres)
 		{
 			glm::vec3 intersection;
-			if (p->try_intersects(moved_r, intersection))
+			if (p.try_intersects(moved_r, intersection))
 			{
 				intersects = true;
 				float distance = glm::length(intersection - moved_r.origin);
@@ -238,7 +240,23 @@ namespace sandtrace
 				{
 					closest_distance = distance;
 					closest_intersection = intersection;
-					closest_primitive = p;
+					closest_primitive = &p;
+				}
+			}
+		}
+
+		for (const auto& p : s.planes)
+		{
+			glm::vec3 intersection;
+			if (p.try_intersects(moved_r, intersection))
+			{
+				intersects = true;
+				float distance = glm::length(intersection - moved_r.origin);
+				if (distance < closest_distance)
+				{
+					closest_distance = distance;
+					closest_intersection = intersection;
+					closest_primitive = &p;
 				}
 			}
 		}
@@ -282,7 +300,7 @@ namespace sandtrace
 			auto light_vector = -dlight.direction;
 			light_vector = glm::normalize(light_vector);
 			auto shadow_ray = ray{ idata.intersection_point(), light_vector };
-			if (is_blocked(shadow_ray, target_scene.primitives))
+			if (is_blocked(shadow_ray, target_scene))
 			{
 				continue;
 			}
@@ -316,7 +334,7 @@ namespace sandtrace
 			auto d = glm::length(light_vector);
 			light_vector = glm::normalize(light_vector);
 			auto shadow_ray = ray{ idata.intersection_point() + epsilon * light_vector, light_vector };
-			if (is_blocked(shadow_ray, target_scene.primitives, plight.position))
+			if (is_blocked(shadow_ray, target_scene, plight.position))
 			{
 				continue;
 			}
@@ -352,7 +370,7 @@ namespace sandtrace
 			auto d = glm::length(light_vector);
 			light_vector = glm::normalize(light_vector);
 			auto shadow_ray = ray{ idata.intersection_point() + epsilon * light_vector, light_vector };
-			if (is_blocked(shadow_ray, target_scene.primitives, slight.position))
+			if (is_blocked(shadow_ray, target_scene, slight.position))
 			{
 				continue;
 			}
@@ -390,13 +408,22 @@ namespace sandtrace
 		return final_color;
 	}
 
-	bool is_blocked(const ray& r, const scene::primitive_vector& primitives)
+	bool is_blocked(const ray& r, const scene& s)
 	{
 		auto moved_r = ray{ r.origin + epsilon * r.direction, r.direction };
-		for (auto p : primitives)
+		for (const auto& p : s.spheres)
 		{
 			glm::vec3 intersection;
-			if (p->try_intersects(moved_r, intersection))
+			if (p.try_intersects(moved_r, intersection))
+			{
+				return true;
+			}
+		}
+
+		for (const auto& p : s.planes)
+		{
+			glm::vec3 intersection;
+			if (p.try_intersects(moved_r, intersection))
 			{
 				return true;
 			}
@@ -405,13 +432,27 @@ namespace sandtrace
 		return false;
 	}
 
-	bool is_blocked(const ray& r, const scene::primitive_vector& primitives, const glm::vec3& limit)
+	bool is_blocked(const ray& r, const scene& s, const glm::vec3& limit)
 	{
 		auto moved_r = ray{ r.origin + epsilon * r.direction, r.direction };
-		for (auto p : primitives)
+		for (const auto& p : s.spheres)
 		{
 			glm::vec3 intersection;
-			if (p->try_intersects(moved_r, intersection))
+			if (p.try_intersects(moved_r, intersection))
+			{
+				auto max_length = glm::length(limit - moved_r.origin);
+				auto length = glm::length(intersection - moved_r.origin);
+				if (length < max_length)
+				{
+					return true;
+				}
+			}
+		}
+
+		for (const auto& p : s.planes)
+		{
+			glm::vec3 intersection;
+			if (p.try_intersects(moved_r, intersection))
 			{
 				auto max_length = glm::length(limit - moved_r.origin);
 				auto length = glm::length(intersection - moved_r.origin);

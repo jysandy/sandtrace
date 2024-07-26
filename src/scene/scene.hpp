@@ -13,6 +13,8 @@
 #include "geometry/mesh.hpp"
 #include "camera.hpp"
 #include "geometry/primitive.hpp"
+#include "geometry/sphere.hpp"
+#include "geometry/plane.hpp"
 #include "lighting/directional_light.hpp"
 #include "lighting/point_light.hpp"
 #include "lighting/spot_light.hpp"
@@ -26,9 +28,9 @@ namespace sandtrace
     class scene
     {
     public:
-        typedef std::vector<std::shared_ptr<primitive>> primitive_vector;
-
-        scene(camera c, primitive_vector p,
+        scene(camera c, 
+            std::vector<sphere> spheres,
+            std::vector<plane> planes,
             std::vector<directional_light> directional_lights,
             std::vector<point_light> point_lights,
             std::vector<spot_light> spot_lights
@@ -40,7 +42,8 @@ namespace sandtrace
         static std::vector<spot_light> default_slights();
         static scene from_json(std::string filename);
 
-        primitive_vector primitives;
+        std::vector<sphere> spheres;
+        std::vector<plane> planes;
         std::list<mesh> meshes;
         camera cam;
         std::vector<directional_light> directional_lights;
