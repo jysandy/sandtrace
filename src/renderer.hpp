@@ -31,7 +31,7 @@ namespace sandtrace
     /*
      * Builds a scene with a sphere resting on a plane surface.
      */
-    std::tuple<std::vector<sphere>, std::vector<plane>> build_sphere_primitives();
+    std::vector<plane> build_planes();
 
     /*
      * Renders the image into an image_data.

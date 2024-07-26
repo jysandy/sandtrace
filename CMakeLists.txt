@@ -30,7 +30,8 @@ target_sources(sandtrace PRIVATE
 	"src/lighting/directional_light.cpp" 
 	"src/lighting/spot_light.cpp" 
 	"src/lighting/colour.cpp" 
-	"src/lighting/point_light.cpp")
+	"src/lighting/point_light.cpp" 
+	"src/lighting/material.cpp")
 
 target_sources(sandtrace PRIVATE
 	"src/geometry/plane.cpp"

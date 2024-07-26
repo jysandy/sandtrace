@@ -20,47 +20,9 @@ namespace sandtrace
 		return out;
 	}
 
-	std::tuple<std::vector<sphere>, std::vector<plane>> build_sphere_primitives()
+	std::vector<plane> build_planes()
 	{
-		auto spheres = std::vector<sphere>{};
 		auto planes = std::vector<plane>{};
-
-		//Add the sphere
-		auto sphere_position = glm::vec3{ 10, 10, -10 };
-		auto sphere_radius = 5.0f;
-
-		auto sphere_colour = glm::vec4(0.8, 0.8, 0.8, 1);
-		auto sphere_mat = material
-		{
-			sphere_colour,
-			sphere_colour,
-			glm::vec4{0.3, 0.3, 0.3, 1.0},
-			256,
-			0.7
-		};
-		spheres.push_back(sphere(sphere_position,
-			sphere_radius,
-			sphere_mat,
-			std::make_shared<monochrome_texture>(sphere_colour)));
-
-		auto sphere2_colour = glm::vec4{ 1, 0, 0, 1.0 };
-
-		auto sphere2_mat = material
-		{
-			sphere2_colour,
-			sphere2_colour,
-			glm::vec4{0.8, 0.8, 0.8, 1.0},
-			200,
-			0.05
-		};
-
-		auto sphere2_position = sphere_position + glm::vec3{ 25, 0, 0 };
-		sphere2_position.y = 7;
-		auto sphere2_radius = 7.0f;
-		spheres.push_back(sphere(sphere2_position,
-			sphere2_radius,
-			sphere2_mat,
-			std::make_shared<monochrome_texture>(sphere2_colour)));
 
 		//Add the plane
 		auto plane_point = glm::vec3{ 5, 0, -5 };
@@ -100,7 +62,7 @@ namespace sandtrace
 			plane2_mat,
 			std::make_shared<monochrome_texture>(plane_colour)));
 
-		return std::make_tuple(spheres, planes);
+		return planes;
 	}
 
 	image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
