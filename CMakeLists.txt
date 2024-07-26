@@ -45,3 +45,6 @@ target_sources(sandtrace PRIVATE
 target_sources(sandtrace PRIVATE
 	"src/textures/image_texture.cpp"
 	"src/textures/texture_pool.cpp")
+
+target_sources(sandtrace PRIVATE
+	"src/serdes/json.cpp")

@@ -27,9 +27,8 @@ int main(int argc, char** argv)
 		int render_width, render_height;
 		render_width = render_height = 1500;
 
-		std::cout << "Constructing scene..." << std::flush;
+		std::cout << "Reading scene..." << std::flush;
 		auto sphere_scene = scene::from_json(parsed_options["scene"].as<std::string>());
-		sphere_scene.planes = build_planes();
 		std::cout << "done." << std::endl;
 
 		int number_of_threads = parsed_options["threads"].as<int>();

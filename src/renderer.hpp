@@ -29,11 +29,6 @@
 namespace sandtrace
 {
     /*
-     * Builds a scene with a sphere resting on a plane surface.
-     */
-    std::vector<plane> build_planes();
-
-    /*
      * Renders the image into an image_data.
      */
     image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads);

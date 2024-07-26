@@ -1,4 +1,5 @@
 #include "plane.hpp"
+#include "serdes/json.hpp"
 
 namespace sandtrace
 {
@@ -46,5 +47,13 @@ namespace sandtrace
     {
         //TODO: This is a dummy. Replace with the real implementation.
         return glm::vec2(0, 0);
+    }
+
+    void from_json(const nlohmann::json& j, plane& p)
+    {
+        p.point  = vec_from_json<3>(j.at("point"));
+        p.normal = glm::normalize(vec_from_json<3>(j.at("normal")));
+        p.mat_   = j.at("material");
+        p.tex    = j.at("texture");
     }
 }

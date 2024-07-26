@@ -87,6 +87,8 @@ namespace sandtrace
             scene_data.value("point_lights", std::vector<point_light>{});
         the_scene.spheres =
             scene_data.value("spheres", std::vector<sphere>{});
+        the_scene.planes =
+            scene_data.value("planes", std::vector<plane>{});
 
         return the_scene;
     }

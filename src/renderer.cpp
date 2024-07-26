@@ -20,51 +20,6 @@ namespace sandtrace
 		return out;
 	}
 
-	std::vector<plane> build_planes()
-	{
-		auto planes = std::vector<plane>{};
-
-		//Add the plane
-		auto plane_point = glm::vec3{ 5, 0, -5 };
-		auto plane_normal = glm::vec3{ 0, 1, 0 };
-		auto plane_colour = glm::vec4
-		{
-			0xDA / 255.0f,
-			0xDA / 255.0f,
-			0xDA / 255.0f,
-			1
-		};//A silvery-grey colour
-		auto plane_mat = material
-		{
-			plane_colour,
-			plane_colour,
-			glm::vec4{0.5, 0.5, 0.5, 1.0},
-			128,
-			0.1
-		};
-
-		auto plane2_mat = material
-		{
-			glm::vec4(0.5, 0.3, 0.3, 1),
-			glm::vec4(0.5, 0.3, 0.3, 1),
-			glm::vec4{0.5, 0.5, 0.5, 1.0},
-			128,
-			0
-		};
-		planes.push_back(plane(plane_point,
-			plane_normal,
-			plane_mat,
-			std::make_shared<monochrome_texture>(plane_colour)));
-
-
-		planes.push_back(plane(glm::vec3{ 5, 0, -30 },
-			glm::vec3{ 0, 0, 1 },
-			plane2_mat,
-			std::make_shared<monochrome_texture>(plane_colour)));
-
-		return planes;
-	}
-
 	image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
 	{
 		auto im_data = image_data{ render_width, render_height };

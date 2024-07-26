@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 
+#include "textures/texture.hpp"
+
 namespace sandtrace
 {
     template <size_t _Size>
@@ -18,6 +20,8 @@ namespace sandtrace
 
         return vec;
     }
+
+    void from_json(const nlohmann::json& j, std::shared_ptr<texture>& t);
 }
 
 #endif // !__SANDTRACE_SERDES_JSON_HPP__

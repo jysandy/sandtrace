@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 #include "primitive.hpp"
 #include "textures/texture.hpp"
@@ -16,6 +17,7 @@ namespace sandtrace
     {
     public:
         plane(glm::vec3 point, glm::vec3 normal, material m, std::shared_ptr<texture> tx);
+        plane() {}
         virtual ~plane(){}
 
         virtual bool try_intersects(const ray& r, glm::vec3& intersection) const;
@@ -30,6 +32,8 @@ namespace sandtrace
     private:
         glm::vec2 texcoords_at(glm::vec3 surface_point) const;
     };
+
+    void from_json(const nlohmann::json& j, plane& p);
 }
 
 #endif

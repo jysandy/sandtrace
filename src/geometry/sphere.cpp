@@ -84,24 +84,11 @@ namespace sandtrace
 		return glm::normalize(surface_point - this->position);
 	}
 
-	std::shared_ptr<texture> parse_texture(const nlohmann::json& j)
-	{
-		std::string texture_type = j.at("type");
-		if (texture_type == "monochrome")
-		{
-			return std::make_shared<monochrome_texture>(vec_from_json<4>(j.at("colour")));
-		}
-		else
-		{
-			throw std::runtime_error("Can't read texture of type: " + texture_type);
-		}
-	}
-
 	void from_json(const nlohmann::json& j, sphere& s)
 	{
 		s.position = vec_from_json<3>(j.at("position"));
-		s.radius = j.at("radius");
-		s.tex = parse_texture(j.at("texture"));
-		s.mat_ = j.at("material");
+		s.radius   = j.at("radius");
+		s.tex	   = j.at("texture");
+		s.mat_     = j.at("material");
 	}
 }
