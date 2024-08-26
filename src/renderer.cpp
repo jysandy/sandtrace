@@ -20,6 +20,16 @@ namespace sandtrace
 		return out;
 	}
 
+	glm::vec4 convert_to_gamma_space(const glm::vec4& in)
+	{
+		return glm::vec4{
+			glm::pow(in.x, 1/2.2),
+			glm::pow(in.y, 1/2.2),
+			glm::pow(in.z, 1/2.2),
+			in.w
+		};
+	}
+
 	image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
 	{
 		auto im_data = image_data{ render_width, render_height };
@@ -31,7 +41,7 @@ namespace sandtrace
 					for (int j = 0; j < render_height; j++)
 					{
 						auto pixel_ray = build_ray(target_scene.cam, i, j, render_width, render_height);
-						im_data(i, j) = ray_traced_color(pixel_ray, target_scene);
+						im_data(i, j) = convert_to_gamma_space(ray_traced_color(pixel_ray, target_scene));
 					}
 				}
 			};
