@@ -20,14 +20,70 @@ namespace sandtrace
 		return out;
 	}
 
-	glm::vec4 convert_to_gamma_space(const glm::vec4& in)
+	void correct_colours_naive(image_data& im_data)
 	{
-		return glm::vec4{
-			glm::pow(in.x, 1/2.2),
-			glm::pow(in.y, 1/2.2),
-			glm::pow(in.z, 1/2.2),
-			in.w
-		};
+		float the_max_colour = 0;
+		for (int i = 0; i < im_data.render_width; i++)
+		{
+			for (int j = 0; j < im_data.render_height; j++)
+			{
+				using std::max;
+				const auto colour = im_data(i, j);
+				auto greatest = max(max(colour.x, colour.y), colour.z);
+				if (greatest > the_max_colour)
+				{
+					the_max_colour = greatest;
+				}
+			}
+		}
+
+		for (int i = 0; i < im_data.render_width; i++)
+		{
+			for (int j = 0; j < im_data.render_height; j++)
+			{
+				const auto old_colour = im_data(i, j);
+
+				if (the_max_colour > 1)
+				{
+					glm::vec4 new_colour{
+					 old_colour.r / the_max_colour,
+					 old_colour.g / the_max_colour,
+					 old_colour.b / the_max_colour,
+					 old_colour.a
+					};
+					im_data(i, j) = new_colour;
+				}
+
+				im_data(i, j) = convert_to_gamma_space(im_data(i, j));
+			}
+		}
+
+	}
+
+	void correct_colours_reinhard(image_data& im_data)
+	{
+		for (int i = 0; i < im_data.render_width; i++)
+		{
+			for (int j = 0; j < im_data.render_height; j++)
+			{
+				im_data(i, j) = reinhard_tonemap(im_data(i, j));
+				im_data(i, j) = convert_to_gamma_space(im_data(i, j));
+			}
+		}
+
+	}
+
+	void correct_colours_aces(image_data& im_data)
+	{
+		for (int i = 0; i < im_data.render_width; i++)
+		{
+			for (int j = 0; j < im_data.render_height; j++)
+			{
+				im_data(i, j) = aces_tonemap(im_data(i, j));
+				im_data(i, j) = convert_to_gamma_space(im_data(i, j));
+			}
+		}
+
 	}
 
 	image_data render_image(int render_width, int render_height, scene target_scene, int number_of_threads)
@@ -41,7 +97,7 @@ namespace sandtrace
 					for (int j = 0; j < render_height; j++)
 					{
 						auto pixel_ray = build_ray(target_scene.cam, i, j, render_width, render_height);
-						im_data(i, j) = convert_to_gamma_space(ray_traced_color(pixel_ray, target_scene));
+						im_data(i, j) = ray_traced_color(pixel_ray, target_scene);
 					}
 				}
 			};
@@ -66,6 +122,7 @@ namespace sandtrace
 			f.get();
 		}
 
+		correct_colours_aces(im_data);
 		return im_data;
 	}
 
@@ -140,7 +197,7 @@ namespace sandtrace
 		{
 			auto entry = recursion_stack.top();
 			recursion_stack.pop();
-			final_color = saturate(entry.color + entry.reflectance * final_color);
+			final_color = entry.color + entry.reflectance * final_color;
 		}
 
 		return final_color;
@@ -210,7 +267,7 @@ namespace sandtrace
 		auto scolor = spot_phong_color(eye_to_point, intersection, target_scene);
 
 		auto final_color = dcolor + pcolor + scolor;
-		return saturate(final_color);
+		return final_color;
 	}
 
 	glm::vec4 directional_phong_color(const ray& eye_to_point, const intersection_data& idata, const scene& target_scene)
@@ -220,7 +277,7 @@ namespace sandtrace
 		for (const auto& dlight : target_scene.directional_lights)
 		{
 			final_color += idata.color() * dlight.ambient * idata.mat().ambient;
-			final_color = saturate(final_color);
+			final_color = final_color;
 
 			//For a directional light, the shadow ray is simply the negative
 			//of the light's direction.
@@ -235,13 +292,13 @@ namespace sandtrace
 			//Diffuse component
 			auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
 			final_color += idata.color() * kd * dlight.diffuse * idata.mat().diffuse;
-			final_color = saturate(final_color);
+			final_color = final_color;
 			//Specular component
 			auto reflected_ray = glm::reflect(-light_vector, idata.normal());
 			auto ks = std::max(glm::dot(reflected_ray, -eye_to_point.direction), 0.0f);
 			ks = glm::pow(ks, idata.mat().shininess);
 			final_color += ks * dlight.specular * idata.mat().specular;
-			final_color = saturate(final_color);
+			final_color = final_color;
 		}
 
 		return final_color;
@@ -254,7 +311,7 @@ namespace sandtrace
 		for (const auto& plight : target_scene.point_lights)
 		{
 			final_color += idata.color() * plight.ambient * idata.mat().ambient;
-			final_color = saturate(final_color);
+			final_color = final_color;
 
 			//Here the shadow ray is the ray from the point of intersection to the light.
 			auto light_vector = plight.position - idata.intersection_point();
@@ -271,14 +328,14 @@ namespace sandtrace
 			//Diffuse component
 			auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
 			final_color += idata.color() * kd * plight.diffuse * idata.mat().diffuse * attenuation_factor;
-			final_color = saturate(final_color);
+			final_color = final_color;
 
 			//Specular component
 			auto ref = glm::reflect(-light_vector, idata.normal());
 			auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
 			ks = glm::pow(ks, idata.mat().shininess);
 			final_color += ks * plight.specular * idata.mat().specular * attenuation_factor;
-			final_color = saturate(final_color);
+			final_color = final_color;
 		}
 
 		return final_color;
@@ -291,7 +348,7 @@ namespace sandtrace
 		for (const auto& slight : target_scene.spot_lights)
 		{
 			final_color += idata.color() * slight.ambient * idata.mat().ambient;
-			final_color = saturate(final_color);
+			final_color = final_color;
 
 			auto light_vector = slight.position - idata.intersection_point();
 			auto d = glm::length(light_vector);
@@ -322,14 +379,14 @@ namespace sandtrace
 			//Diffuse component
 			auto kd = std::max(glm::dot(light_vector, idata.normal()), 0.0f);
 			final_color += idata.color() * kd * slight.diffuse * idata.mat().diffuse * attenuation_factor * intensity_factor;
-			final_color = saturate(final_color);
+			final_color = final_color;
 
 			//Specular component
 			auto ref = glm::reflect(-light_vector, idata.normal());
 			auto ks = std::max(glm::dot(ref, -eye_to_point.direction), 0.0f);
 			ks = glm::pow(ks, idata.mat().shininess);
 			final_color += ks * slight.specular * idata.mat().specular * attenuation_factor * intensity_factor;
-			final_color = saturate(final_color);
+			final_color = final_color;
 		}
 
 		return final_color;

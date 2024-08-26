@@ -1,6 +1,7 @@
 #include "serdes/json.hpp"
 #include "textures/texture.hpp"
 #include "textures/monochrome_texture.hpp"
+#include "lighting/colour.hpp"
 
 namespace sandtrace
 {
@@ -9,7 +10,7 @@ namespace sandtrace
 		std::string texture_type = j.at("type");
 		if (texture_type == "monochrome")
 		{
-			t = std::make_shared<monochrome_texture>(vec_from_json<4>(j.at("colour")));
+			t = std::make_shared<monochrome_texture>(convert_to_linear_space(vec_from_json<4>(j.at("colour"))));
 		}
 		else
 		{

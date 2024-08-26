@@ -8,10 +8,10 @@ namespace sandtrace
 {
 	void from_json(const nlohmann::json& j, spot_light& s)
 	{
-		glm::vec4 colour = vec_from_json<4>(j.at("colour"));
-		s.ambient	 = saturate(j.at("ambient_factor").template get<float>() * colour);
-		s.diffuse	 = saturate(j.at("diffuse_factor").template get<float>() * colour);
-		s.specular	 = saturate(j.at("specular_factor").template get<float>() * colour);
+		glm::vec4 colour = convert_to_linear_space(vec_from_json<4>(j.at("colour")));
+		s.ambient	 = j.at("ambient_factor").template get<float>() * colour;
+		s.diffuse	 = j.at("diffuse_factor").template get<float>() * colour;
+		s.specular	 = j.at("specular_factor").template get<float>() * colour;
 		s.position	 = vec_from_json<3>(j.at("position"));
 		glm::vec3 look_at = vec_from_json<3>(j.at("look_at"));
 		s.direction	 = glm::normalize(look_at - s.position);
